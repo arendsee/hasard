@@ -14,7 +14,7 @@ ltypecheck <- function(x, type){
   if(is.null(x)){
     good = FALSE 
   }
-  good = lapply(x, typecheck) %>% unlist %>% all
+  good = all(unlist(lapply(x, typecheck)))
   return(good)
 }
 
@@ -26,14 +26,14 @@ composition_test <- function(f, g){
   }
 }
 
-vlift <- function(x, state=list(ok=TRUE)) {
-  val <- list(val=x, state=state)
+vlift <- function(value, state=list(ok=TRUE)) {
+  val <- list(value=value, state=state)
   class(val) <- c('monad', class(val))
 }
 
 flift <- function(f) {
   function(x) {
-    val <- f(x$val)
+    val <- f(x$value)
     vlift(val, x$state)
   }
 }

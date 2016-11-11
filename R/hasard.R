@@ -66,7 +66,7 @@ tee <- function(f, g, h) {
 active_node <- function(fpure, fival, foval, fstat, feff){
   typecheck(fpure, 'unary')
   fun <- function(M) {
-    a <- M$val
+    a <- M$value
     b <- NULL
     if(!is.null(a) && fival(a)){
       b <- fpure(a)
