@@ -1,3 +1,6 @@
+#' @include util.R
+NULL
+
 #' Get types for unary function
 #' 
 #' @param f an input function
@@ -29,20 +32,21 @@ ftype <- function(f){
 #' @return logical
 #' @export
 are_composable <- function(f, g){
-  (ftype(f)[2] == ftype(g)[1]) || ftype(g)[1] == "*"
+  (ftype(f)[2] == ftype(g)[1]) || (ftype(g)[1] == "*")
 }
 
 #' Make composition of functions
 #' 
 #' @param ... two or more functions
 #' @return A function that is a composition of the input functions
-fcompose <- function(...){
+compose <- function(...){
   compose_ <- function(f, g) {
     composition_test(f, g)
     fun <- function(x) {
       g(f(x))
     }
     ftype(fun) <- c(ftype(f)[1], ftype(g)[2])
+    fun
   }
   Reduce(compose_, list(...)) 
 }
@@ -126,8 +130,37 @@ unify <- function(f, itype='*', otype='*', ...){
   fun <- function(x) {
     f(x, ...)
   }
-  class(fun) <- c('unary', class(fun))
   attributes(fun)$.itype = itype
   attributes(fun)$.otype = otype
+  class(fun) <- c(sprintf("(%s -> %s)", itype, otype), 'unary', class(fun))
   fun
+}
+
+rclass <- compose(
+  unify(lapply,
+        FUN = function(x) {
+          if(is.list(x)){
+            list_class(x)
+          } else {
+            class(x)[1]
+          }
+        }
+       ),
+  unify(unlist),
+  unify(paste0, collapse=", "),
+  unify(sub, pattern="(.*,.*)", replace="(\\1)")
+)
+
+tuplify <- function(...) {
+  tuple <- list(...)
+  class(tuple) <- rclass(tuple) 
+  tuple
+}
+
+parsubset <- function(x, i){
+  if(! all(i %in% 1:length(x))){
+    stop(sprintf("Invalid indices, select from 1-%s\n", length(x)))
+  }
+  tuple <- x[i]
+  class(tuple) <- "ladida"
 }

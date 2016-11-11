@@ -17,3 +17,7 @@ Suggests:
     knitr,
     covr
 VignetteBuilder: knitr
+Collate:
+    'util.R'
+    'core.R'
+    'print.R'
