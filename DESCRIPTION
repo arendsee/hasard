@@ -20,6 +20,7 @@ Suggests:
     covr
 VignetteBuilder: knitr
 Collate:
+    'atom.R'
     'util.R'
     'core.R'
     'print.R'

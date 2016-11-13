@@ -1,41 +1,6 @@
+#' @include atom.R
 #' @include util.R
 NULL
-
-#' A function that always returns TRUE
-#' 
-#' @param ... anything
-#' @return TRUE
-#' @export
-true <- function(...) {
-  TRUE
-}
-
-#' A function that always returns FALSE
-#' 
-#' @param ... anything
-#' @return FALSE
-#' @export
-false <- function(...) {
-  FALSE
-}
-
-#' A function that does nothing
-#' 
-#' @param ... anything
-#' @export
-nothing <- function(...){ }
-
-#' Passes arguments 2-n to argument 1
-#' 
-#' @param f a function
-#' @param ... anything
-#' @export
-execute <- function(f, ...) {
-  if(!classcheck('function', f)){
-    error("the first argument in `execute` must be a function")
-  }
-  f(...)
-}
 
 #' Reduce a function to a single input, single output function
 #' 
@@ -60,21 +25,6 @@ monify <- function(f, ...){
 typify <- function(f, itype='a', otype='b'){
   htype(f) <- c(itype, otype)
   f
-}
-
-#' Create a new validator
-#' 
-#' @param f function with type: f :: vclass -> logical
-#' @param vclass the input class
-#' @return a unary, validator function
-#' @export
-make_validator <- function(f, vclass){
-  fun <- function(x) {
-    f(x)
-  }
-  fun <- add_class(fun, 'validator', 'unary')
-  htype(fun) <- c(vclass, 'Bool')
-  fun
 }
 
 #' Add input type checking to a typed function
@@ -128,6 +78,25 @@ effify <- function(f, effect=nothing){
   class(fun) <- c('effectual', class(f))
   fun
 }
+
+
+
+
+#' Create a new validator
+#' 
+#' @param f function with type: f :: vclass -> logical
+#' @param vclass the input class
+#' @return a unary, validator function
+#' @export
+make_validator <- function(f, vclass){
+  fun <- function(x) {
+    f(x)
+  }
+  fun <- add_class(fun, 'validator', 'unary')
+  htype(fun) <- c(vclass, 'Bool')
+  fun
+}
+
 
 #' Make composition of functions
 #' 
