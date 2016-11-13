@@ -36,11 +36,6 @@ typify <- function(f, itype='a', otype='b'){
 #' @return f
 #' @export
 valify <- function(f, val=true, pass=execute, fail=nothing){
-  if(length(val) != nhtypes(f)){
-    warn("FAILED: expected 2 validators, got %d", nhtypes(f))
-    return(f)
-  }
-
   if(classcheck('typed', val, f)){
     v <- htype(val)
     a <- htype(f)
@@ -102,6 +97,7 @@ make_validator <- function(f, vclass){
 #' 
 #' @param ... two or more functions
 #' @return A function that is a composition of the input functions
+#' @export
 compose <- function(...){
   if(classcheck('typed', ...)){
     compose_ <- function(f, g) {

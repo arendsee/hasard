@@ -11,7 +11,8 @@ warn <- function(...){
 #' @param ... arguments passed to sprintf
 #' @export
 error <- function(...){
-  stop(sprintf(...))
+  msg <- force(sprintf(...))
+  stop(msg)
 }
 
 #' Check the htype
