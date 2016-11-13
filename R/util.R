@@ -1,46 +1,120 @@
+#' A wrapper for warning handling and reporting
+#' 
+#' @param ... arguments passed to sprintf
+#' @export
+warn <- function(...){
+  warning(sprintf(...))
+}
+
+#' A wrapper for error handling and reporting
+#' 
+#' @param ... arguments passed to sprintf
+#' @export
+error <- function(...){
+  stop(sprintf(...))
+}
+
 #' Check the htype
 #' 
+#' @param CLASS expected class
+#' @param ... any number of objects
+#' @return TRUE if all elements in ... have class CLASS
+#' @export
+classcheck <- function(CLASS, ...){
+  if(!is.character(CLASS)){
+    error("CLASS must be a character vector")
+  }
+  all(unlist(lapply(list(...), function(x) CLASS %in% class(x))))
+}
+
+#' Prepend a class to the class vector
+#' 
 #' @param x anything
-#' @param type expected type
-#' @return logical
+#' @param ... classes to add
+#' @return x with the new class prepended
 #' @export
-typecheck <- function(x, type){
-  good = TRUE
-  if(is.null(x)){
-    good = FALSE 
+add_class <- function(x, ...){
+  add_class_ <- function(x, cls) {
+    if(!classcheck(cls, x)){
+      class(x) <- c(cls, class(x))
+    }
+    x
   }
-  if(! type %in% class(x)){
-    good = FALSE
-  }
-  return(good)
+  Reduce(add_class_, unlist(list(...)), init=x)
 }
 
-#' Check the htype for a list
+#' Get types for unary function
 #' 
-#' @param x a list
-#' @param type expected type
-#' @return logical
+#' @param f an input function
+#' @return vector of types
 #' @export
-ltypecheck <- function(x, type){
-  good = TRUE
-  if(is.null(x)){
-    good = FALSE 
-  }
-  good = all(unlist(lapply(x, typecheck)))
-  return(good)
+htype <- function(f){
+  attr(f, 'htype')
 }
 
-#' Assert two functions can be composed
+#' Assign types to function
 #' 
-#' @param f,g two functions 
+#' @param f left hand value
+#' @param value right hand value
+#' @export
+#' 
+`htype<-` <- function(f, value){
+  if(classcheck('unary', f) && length(value) > 2){
+    error("2 types expected for unary function, %d found", length(value))
+  }
+  attr(f, 'htype') <- value
+  f <- add_class(f, 'typed')
+  f
+}
+
+#' The number of types a function has
+#'
+#' For a unary function, this will be two: input and output types. Currently,
+#' this is the only legal kind of typed function. But eventually I may change
+#' this.
+#'
+#' @param f a function with the 'typed' class
+#' @return integer
+#' @export
+nhtypes <- function(f){
+  length(htype(f))
+}
+
+#' Get input type
+#' 
+#' @param f a function with the 'typed' class
+#' @return input type
+#' @export
+ip <- function(f) {
+  if(classcheck('unary', f)){
+    htype(f)[1]
+  } else {
+    warn("This function is only defined for unary functions (set in monify)")
+    NULL
+  }
+}
+
+#' Get output type
+#' 
+#' @param f a function with the 'typed' class
+#' @return output type
+#' @export
+op <- function(f) {
+  if(classcheck('unary', f)){
+    htype(f)[2]
+  } else {
+    warn("This function is only defined for unary functions (set in monify)")
+    NULL
+  }
+}
+
+#' Check if two functions are composable
+#' 
+#' @param f,g unary class functions
 #' @return logical
 #' @export
-composition_test <- function(f, g){
-  typecheck(f, 'unary')
-  typecheck(g, 'unary')
-  if( ! are_composable(f, g) ){
-    stop("Composition g . f is illegal")
-  }
+are_composable <- function(f, g){
+  classcheck('unary', f, g) && ((op(f) == ip(g)) || (ip(g) == "*"))
 }
 
 #' Lift a value into a context
@@ -51,7 +125,7 @@ composition_test <- function(f, g){
 #' @export
 vlift <- function(value, state=list(ok=TRUE)) {
   val <- list(value=value, state=state)
-  class(val) <- c('state_bound', class(val))
+  val <- add_class(val, 'state_bound')
   val
 }
 
@@ -79,20 +153,3 @@ flift.state_bound <- function(f, s) {
     vlift(value=val, state=state)
   }
 }
-
-#' Create a new validator
-#' 
-#' @param f function with type: f :: vclass -> logical
-#' @param vclass the input class
-#' @return a unary, validator function
-#' @export
-make_validator <- function(f, vclass){
-  fun <- function(x) {
-    f(x)
-  }
-  class(fun) <- c('validator', 'unary', class(fun)) 
-  attributes(fun)$itype <- vclass
-  attributes(fun)$otype <- 'logical'
-  fun
-}
-

@@ -1,23 +1,18 @@
 context("hasard.R")
 
 test_that("Testing type checkers", {
-  d <- list(
-    jes=1,
-    jak=2,
-    jen=3
-  )
-  class(d$jes) <- 'jes'
-  class(d$jak) <- 'jak'
-  class(d$jen) <- 'jen'
 
-  foo <- function(x) { class(x) <- 'jes'; x}
-  ftype(foo) <- c('*', 'jes')
+  foo <- function(x) { }
+  htype(foo) <- c('*', 'jes')
+  class(foo) <- c('unary', 'function')
 
-  bar <- function(x) { class(x) <- 'jak'; x }
-  ftype(bar) <- c('jes', 'jak')
+  bar <- function(x) {  }
+  htype(bar) <- c('jes', 'jak')
+  class(bar) <- c('unary', 'function')
 
-  baz <- function(x) { class(x) <- 'jen'; x }
-  ftype(baz) <- c('jak', 'jen')
+  baz <- function(x) { }
+  htype(baz) <- c('jak', 'jen')
+  class(baz) <- c('unary', 'function')
 
   expect(are_composable(foo, bar), "are_composable works for positive case")
   expect(are_composable(bar, foo), "are_composable works for '*'")

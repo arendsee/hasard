@@ -8,6 +8,8 @@ BugReports: https://github.com/arendsee/hasard/issues
 Description: Functions for compositional, bifurcating pipelines.
 Depends:
     R (>= 3.3.1)
+Imports:
+    purrr
 License: GPL-3 | file LICENSE
 Encoding: UTF-8
 LazyData: true
