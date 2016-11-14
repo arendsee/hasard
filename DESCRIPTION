@@ -22,5 +22,6 @@ VignetteBuilder: knitr
 Collate:
     'atom.R'
     'util.R'
+    'is.R'
     'core.R'
     'print.R'

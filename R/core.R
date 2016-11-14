@@ -1,4 +1,5 @@
 #' @include atom.R
+#' @include is.R
 #' @include util.R
 NULL
 
@@ -74,6 +75,32 @@ effify <- function(f, effect=nothing){
   fun
 }
 
+#' Contextualize an active function
+#'
+#' @param f input active_node
+#' @param inode,onode input and output nodes
+#' @return a wired_node
+#' @export
+conify <- function(f, inode=NULL, onode=NULL){
+  attr(f, 'inode') <- inode
+  attr(f, 'onode') <- onode
+  f <- add_class(f, 'connected')
+  f
+}
+
+#' Get output for a function
+#' 
+#' @param f any function
+#' @param cacher the caching function
+#' @return function ouptut
+#' @export
+memify <- function(f, cacher=execute){
+  fun <- function(x){
+    cacher(f, x)
+  }
+  fun <- add_class(fun, 'cached')
+  fun
+}
 
 
 
@@ -161,76 +188,63 @@ tuplify <- function(...) {
 #' @export
 parsubset <- function(x, i){
   if(! all(i %in% 1:length(x))){
-    stop(sprintf("Invalid indices, select from 1-%s\n", length(x)))
+    error("Invalid indices, select from 1-%s\n", length(x))
   }
+
+  if(!classcheck('tuple', x)){
+    error("x must be a tuple")
+  }
+
   tuple <- x[i]
-  htype(tuple) <- rclass(tuple) 
+
+  htype(tuple) <- sprintf("(%s)", paste0(htype(x)[i], collapse=", "))
+
   tuple <- add_class(tuple, 'tuple')
   tuple
 }
 
-# #' Split output of a function into downstream functions
-# #'
-# #' @param f,g,h input functions
-# #' @return a list of two functions
-# #' @export
-# tee <- function(f, g, h) {
-#   ~ list(g(f(.)), h(f(.)))
-# }
+#' Combine takes any number of arguments, but yields a function with a constant
+#' number of arguments.
+#' 
+#' @param ... input functions from which types are induced
+#' @return combining function
+#' @export
+combine <- function(...){
+  if(!classcheck('unary', ...) || !classcheck('typed', ...)){
+    error("Can only combine unary, typed functions")
+  }
 
-# #' Wrap a pure function in a monad ...
-# #'
-# #' @param fpure,fival,foval,fstat,feff some functions
-# #' @return wrapped function
-# #' @export
-# active_node <- function(fpure, fival, foval, fstat, feff){
-#   typecheck(fpure, 'unary')
-#   fun <- function(M) {
-#     a <- M$value
-#     b <- NULL
-#     if(!is.null(a) && fival(a)){
-#       b <- fpure(a)
-#       if(foval(b)){
-#         feff(M, b)
-#       } else {
-#         b <- NULL
-#       }
-#     }
-#     state <- fstat(M, b)
-#     vlift(value=b, state=state)
-#   }
-#   class(fun) <- c('active_node', 'function')
-#   attributes(fun)$.itype <- attributes(fpure)$.itype
-#   attributes(fun)$.otype <- attributes(fpure)$.otype
-#   fun
-# }
+  itypes <- lapply(list(...), function(.) htype(.)[2])
+  otype <- sprintf("(%s)", paste0(itypes, collapse=", "))
 
-# #' Contextualize an active function
-# #'
-# #' @param f input active_node
-# #' @param inode,onode input and output nodes
-# #' @return a wired_node
-# #' @export
-# wired_node <- function(f, inode=NULL, onode=NULL){
-#   stopifnot(
-#     typecheck(f, 'active_node')      &&
-#     ltypecheck(inode, 'active_node') &&
-#     ltypecheck(onode, 'active_node')
-#   )
-#   class(f) <- c('wired_node', class(f))
-#   attributes(f)$inode <- inode
-#   attributes(f)$onode <- onode
-#   attributes(f)$cache <- NULL
-#   return(f)
-# }
+  N <- length(list(...))
 
-# #' Execute a node and cache result
-# #'
-# #' @param f node to be executed
-# #' @export
-# run <- function(f) {
-#   typecheck(f, 'wired_node')
-#   ltypecheck(f$inode)
-#   ltypecheck(f$onode)
-#   # run using data from inode caches, if NULL, run them first, and cache
-# }
+  fun <- function(...){
+    if(length(list(...)) != N){
+      error("Expected list of length %d", N)
+    }
+  }
+
+  htype(fun) <- c(itypes, otype)
+  class(fun) <- c('typed', 'function')
+  fun
+}
+
+#' Flatten one level of a tuple
+#' 
+#' @param x tuple a possibly nested tuple
+#' @return tuple
+#' @export
+flatten <- function(x){
+  flattened <- list()
+  for(. in x){
+    if(classcheck('tuple')){
+      for(val in .){
+        flattened <- append(flattened, val)
+      }
+    } else {
+      flattened <- append(flattened, .)
+    }
+  }
+  flattened 
+}
