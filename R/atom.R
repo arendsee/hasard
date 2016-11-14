@@ -8,8 +8,16 @@
 #' }
 #'
 #' @param FUN any function
+#' @param x anything
+#' @param op command for cache function
 #' @param ... anything
 #' @name basic_functions
+
+#' @rdname basic_functions
+#' @export
+id <- function(x){
+  x
+}
 
 #' @rdname basic_functions
 #' @export
@@ -36,4 +44,16 @@ execute <- function(FUN, ...) {
     error("the first argument in `execute` must be a function")
   }
   FUN(...)
+}
+
+#' @rdname basic_functions
+#' @export
+nocache <- function(op, ...) {
+  switch(
+    op,
+    del = nothing(...),
+    chk = false(...),
+    put = nothing(...),
+    get = nothing(...),
+  )
 }

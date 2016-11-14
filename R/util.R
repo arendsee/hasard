@@ -1,3 +1,27 @@
+#' Collapse all arguments into unary closure
+#'
+#' @param f arbitrary function
+#' @param ... additional arguments
+#' @export
+unify <- function(f, ...){
+  function(x){
+    f(x, ...)
+  }
+}
+
+#' Get number of positional arguments
+#'
+#' @param f arbitrary function
+#' @export
+npositional <- function(f){
+  formals(f)                  %>%
+    lapply(deparse)           %>%
+    lapply(nchar)             %>%
+    unlist                    %>%
+    { .[!names(.) == '...'] } %>%
+    { sum(. == 0) }
+}
+
 #' A wrapper for warning handling and reporting
 #' 
 #' @param ... arguments passed to sprintf
@@ -13,6 +37,25 @@ warn <- function(...){
 error <- function(...){
   msg <- force(sprintf(...))
   stop(msg)
+}
+
+#' Run functions for their side effects
+#' 
+#' @param x a function or a list of functions
+#' @param ... arguments sent to x
+#' @return NULL
+#' @export
+runall <- function(x, ...){
+  if(is.list(x)){
+    if(all(unlist(lapply(x, is.function)))){
+      lapply(x, execute, ...)
+    } else {
+      error("All elements of x must be functions")
+    }
+  } else {
+    x(...)
+  }
+  NULL
 }
 
 #' Check the htype
@@ -42,71 +85,6 @@ add_class <- function(x, ...){
     x
   }
   Reduce(add_class_, unlist(list(...)), init=x)
-}
-
-#' Get types for unary function
-#' 
-#' @param f an input function
-#' @return vector of types
-#' @export
-htype <- function(f){
-  attr(f, 'htype')
-}
-
-#' Assign types to function
-#' 
-#' @param f left hand value
-#' @param value right hand value
-#' @export
-#' 
-`htype<-` <- function(f, value){
-  if(classcheck('unary', f) && length(value) > 2){
-    error("2 types expected for unary function, %d found", length(value))
-  }
-  attr(f, 'htype') <- value
-  f <- add_class(f, 'typed')
-  f
-}
-
-#' The number of types a function has
-#'
-#' For a unary function, this will be two: input and output types. Currently,
-#' this is the only legal kind of typed function. But eventually I may change
-#' this.
-#'
-#' @param f a function with the 'typed' class
-#' @return integer
-#' @export
-nhtypes <- function(f){
-  length(htype(f))
-}
-
-#' Get input type
-#' 
-#' @param f a function with the 'typed' class
-#' @return input type
-#' @export
-ip <- function(f) {
-  if(classcheck('unary', f)){
-    htype(f)[1]
-  } else {
-    warn("This function is only defined for unary functions (set in monify)")
-    NULL
-  }
-}
-
-#' Get output type
-#' 
-#' @param f a function with the 'typed' class
-#' @return output type
-#' @export
-op <- function(f) {
-  if(classcheck('unary', f)){
-    htype(f)[2]
-  } else {
-    warn("This function is only defined for unary functions (set in monify)")
-    NULL
-  }
 }
 
 #' Check if two functions are composable

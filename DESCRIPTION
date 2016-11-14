@@ -9,6 +9,7 @@ Description: Functions for compositional, bifurcating pipelines.
 Depends:
     R (>= 3.3.1)
 Imports:
+    magrittr,
     purrr
 License: GPL-3 | file LICENSE
 Encoding: UTF-8
@@ -20,6 +21,7 @@ Suggests:
     covr
 VignetteBuilder: knitr
 Collate:
+    'assignment.R'
     'atom.R'
     'util.R'
     'is.R'

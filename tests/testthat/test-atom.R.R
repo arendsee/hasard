@@ -16,6 +16,14 @@ test_that(
     expect_null(nothing(TRUE))
     expect_null(nothing(1,1,NULL))
 
+    expect_equal(id('a'), 'a')
+
+    expect_null(nocache('del'))
+    expect_null(nocache('put'))
+    expect_null(nocache('get'))
+    expect_false(nocache('chk'))
+
     expect_equal(execute(paste, "a", "b"), "a b") 
+    expect_error(execute('a')) 
   }
 )

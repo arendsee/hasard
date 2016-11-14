@@ -4,10 +4,10 @@
 \alias{rclass}
 \title{A function that recusively determines class from an object}
 \usage{
-rclass(.)
+rclass(x)
 }
 \arguments{
-\item{.}{any thing}
+\item{x}{any thing}
 }
 \value{
 character a class definition

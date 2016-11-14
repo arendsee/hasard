@@ -1,9 +1,18 @@
 context("util.R")
+context("assignment.R")
 
 test_that(
   "Type and class functions work",
   {
     foo <- function(x) { }
+    expect_warning(ip(foo) <- 'a')
+    foo <- function(x) { }
+    expect_warning(op(foo) <- 'a')
+    ip(foo) <- 'b'
+    expect_equal(ip(foo), 'b')
+    op(foo) <- 'c'
+    expect_equal(op(foo), 'c')
+
     htype(foo) <- c('*', 'jes')
     class(foo) <- c('unary', 'function')
 
@@ -11,14 +20,25 @@ test_that(
     htype(bar) <- c('jes', 'jak')
     class(bar) <- c('unary', 'function')
 
+
     baz <- function(x) { }
     htype(baz) <- c('jak', 'jen')
     class(baz) <- c('unary', 'function')
 
-    bad <- function(x) { }
+    bad <- function(x, y) { }
     htype(bad) <- c('jak', 'jen', 'gracy')
     class(bad) <- c('multi', 'function')
-    
+
+    expect_equal(htype(foo), c('*', 'jes'))
+    expect_equal(ip(foo), '*')
+    expect_equal(op(foo), 'jes')
+
+
+    expect_equal(npositional(foo), 1)
+    expect_equal(npositional(bad), 2)
+    expect_equal(npositional(mean), 1)
+
+    expect_warning(htype(bad) <- c('jak', 'jen', 'gracy', 'dave'))
 
     expect_equal(
       class(add_class(mean, "a")),
@@ -42,12 +62,6 @@ test_that(
 
     expect_true(classcheck('unary', foo, bar, baz))
     expect_false(classcheck('unary', foo, bar, baz, mean))
-
-    expect_equal(ip(baz), 'jak')
-    expect_warning(ip(bad), NULL)
-
-    expect_equal(op(baz), 'jen')
-    expect_warning(op(bad), NULL)
 
     expect_true(are_composable(foo, bar), "are_composable works for positive case")
     expect_true(are_composable(bar, foo), "are_composable works for '*'")

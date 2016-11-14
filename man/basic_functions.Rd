@@ -4,10 +4,14 @@
 \alias{basic_functions}
 \alias{execute}
 \alias{false}
+\alias{id}
+\alias{nocache}
 \alias{nothing}
 \alias{true}
 \title{Basic functions}
 \usage{
+id(x)
+
 true(...)
 
 false(...)
@@ -15,11 +19,17 @@ false(...)
 nothing(...)
 
 execute(FUN, ...)
+
+nocache(op, ...)
 }
 \arguments{
+\item{x}{anything}
+
 \item{...}{anything}
 
 \item{FUN}{any function}
+
+\item{op}{command for cache function}
 }
 \description{
 \itemize{
