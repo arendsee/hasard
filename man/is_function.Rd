@@ -2,6 +2,7 @@
 % Please edit documentation in R/is.R
 \name{is_function}
 \alias{is.effectual}
+\alias{is.hnode}
 \alias{is.tuple}
 \alias{is.typed}
 \alias{is.unary}
@@ -9,6 +10,8 @@
 \alias{is_function}
 \title{is.* functions for checking classes}
 \usage{
+is.hnode(x)
+
 is.tuple(x)
 
 is.unary(x)

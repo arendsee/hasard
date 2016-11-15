@@ -23,8 +23,6 @@ Build function
   \item .otype output type
   \item .inode input nodes
   \item .val (a -> Bool) - determines in input is correct
-  \item .iunwrap input unwrapper
-  \item .owrap output wrapper
   \item .pass function called if val returns TRUE
   \item .fail function called if val returns FALSE
   \item .effect a function of a and b

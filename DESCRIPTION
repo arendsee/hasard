@@ -29,5 +29,4 @@ Collate:
     'node.R'
     'util.R'
     'main.R'
-    'print.R'
     'type.R'

@@ -7,6 +7,12 @@ NULL
 
 #' @rdname is_function
 #' @export
+is.hnode <- function(x){
+  'hnode' %in% class(x)
+}
+
+#' @rdname is_function
+#' @export
 is.tuple <- function(x){
   'tuple' %in% class(x)
 }

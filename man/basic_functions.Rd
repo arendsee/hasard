@@ -2,6 +2,7 @@
 % Please edit documentation in R/atom.R
 \name{basic_functions}
 \alias{basic_functions}
+\alias{blank}
 \alias{execute}
 \alias{false}
 \alias{id}
@@ -10,6 +11,8 @@
 \alias{true}
 \title{Basic functions}
 \usage{
+blank()
+
 id(x, ...)
 
 true(...)

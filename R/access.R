@@ -21,9 +21,6 @@ htype <- function(f){
 #' @rdname access
 #' @export
 `htype<-` <- function(f, value){
-  if(npositional(f) != (length(value) - 1)){
-    warn("Expected %d types, got %d", npositional(f)+1, length(value))
-  }
   attr(f, 'htype') <- value
   f <- add_class(f, 'typed')
   f
@@ -51,7 +48,7 @@ inode <- function(f){
 #' @rdname access
 #' @export
 ip <- function(f) {
-  htype(f)[1]
+  htype(f)[1:(nhtypes(f)-1)]
 }
 
 #' @rdname access
@@ -68,16 +65,16 @@ ip <- function(f) {
 #' @rdname access
 #' @export
 op <- function(f) {
-  htype(f)[2]
+  htype(f)[nhtypes(f)]
 }
 
 #' @rdname access
 #' @export
 `op<-` <- function(f, value){
   if(is.null(htype(f))){
+    warn("f does not have a type, initializing input to '*'")
     htype(f) <- c('*', '*')
-    warn("Initializing input to '*'")
   }
-  htype(f)[2] <- value
+  htype(f)[nhtypes(f)] <- value
   f
 }

@@ -7,8 +7,6 @@
 #'   \item .otype output type
 #'   \item .inode input nodes
 #'   \item .val (a -> Bool) - determines in input is correct
-#'   \item .iunwrap input unwrapper
-#'   \item .owrap output wrapper
 #'   \item .pass function called if val returns TRUE
 #'   \item .fail function called if val returns FALSE
 #'   \item .effect a function of a and b
@@ -23,7 +21,6 @@ NULL
 hsource_ <- function(
   f,
   otype  = '*',
-  owrap  = id,
   effect = nothing,
   cacher = nocache,
   args   = list()
@@ -31,7 +28,6 @@ hsource_ <- function(
 
   fun <- function(
     .f      = f,
-    .owrap  = owrap,
     .effect = effect,
     .cacher = cacher,
     .delete = FALSE,
@@ -41,7 +37,6 @@ hsource_ <- function(
     if(.delete){ .cacher('del') }
     if(!.cacher('chk')){
       b <- do.call(.f, .args) 
-      B <- owrap(b)
       runall(.effect, b=b)
       .cacher('put', b)
     } else {
@@ -59,12 +54,10 @@ hsource_ <- function(
 
 hpipe_ <- function(
   f,
-  itype   = '*',
+  inode,
+  itype   = rep('*', length(inode)),
   otype   = '*',
-  inode   = NULL,
   val     = true,
-  iunwrap = id,
-  owrap   = id,
   pass    = execute,
   fail    = nothing,
   effect  = nothing,
@@ -72,51 +65,57 @@ hpipe_ <- function(
   args    = list()
 ){
 
-  if(is.typed(val) && !((itype == "*" || ip(val) == itype) && (op(val) == "Bool")))
-  {
-    msg <- "expect val :: (%s -> Bool), got (%s -> %s)"
-    warn(msg, itype, ip(val), op(val))
-  }
-
   fun <- function(
-    x,
-    .f       = f,
-    .val     = val,
+    .fun     = f,
     .inode   = inode,
-    .iunwrap = iunwrap,
-    .owrap   = owrap,
+    .val     = val,
     .pass    = pass,
     .fail    = fail,
     .effect  = effect,
     .cacher  = cacher,
     .delete  = FALSE,
     .args    = args
-  ) {
+  ){
     if(.delete){ .cacher('del') }
 
-    if(missing(x)){
-      if(.cacher('chk')){
-        return(.cacher('get'))
-      }
-      x <- .inode()
+    if(.cacher('chk')){
+      return(.cacher('get'))
     }
 
-    a <- .iunwrap(x)
-    if(.val(a)){
-      b <- do.call(.pass, append(list(.f, a), .args)) 
+    if(class(.inode) != 'list'){
+      error("expected class(.inode) == 'list', found '%s'", class(.inode))
+    }
+
+    if(!all(unlist(lapply(.inode, is.hnode)))){
+      error("all inode functions must be of class 'hnode'")
+    }
+
+    if(npositional(.fun) != length(.inode)){
+      warn(
+        "found %d arguments in .inode, expected %d (from .fun)",
+        npositional(.fun),
+        length(.inode)
+      )
+    }
+
+    a <- lapply(.inode, execute) 
+
+    funlist <- append(.fun, append(a, args))
+
+    if(do.call(.val, a)){
+      b <- do.call(.pass, funlist)
     } else {
-      b <- do.call(.fail, append(list(.f, a), .args)) 
+      b <- do.call(.fail, funlist)
     }
-    B <- .owrap(b, A=x)
 
-    runall(.effect, A=x, B=B)
-    .cacher('put', B)
-    B
+    runall(.effect, b=b, b=b)
+    .cacher('put', b)
+    b
   }
 
-  htype(fun) <- c(itype, otype)
+  htype(fun) <- c(unlist(lapply(inode, op)), otype)
 
-  fun <- add_class(fun, 'hnode', 'unary')
+  fun <- add_class(fun, 'hnode')
 
   fun
 }

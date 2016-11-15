@@ -38,8 +38,6 @@ test_that(
     expect_equal(npositional(bad), 2)
     expect_equal(npositional(mean), 1)
 
-    expect_warning(htype(bad) <- c('jak', 'jen', 'gracy', 'dave'))
-
     expect_equal(
       class(add_class(mean, "a")),
       c("a", "function"),

@@ -16,6 +16,10 @@ NULL
 
 #' @rdname basic_functions
 #' @export
+blank <- function(){}
+
+#' @rdname basic_functions
+#' @export
 id <- function(x, ...){
   x
 }
