@@ -2,7 +2,8 @@
 #'
 #' @param x anything
 #' @return logical
-#' @name is_functions 
+#' @name is_function
+NULL
 
 #' @rdname is_function
 #' @export

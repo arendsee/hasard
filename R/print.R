@@ -3,6 +3,7 @@
 #' @param x input function
 #' @param ... additional arguments, will be ignored
 #' @name print
+NULL
 
 #' @rdname print
 #' @export

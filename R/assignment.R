@@ -10,6 +10,7 @@
 #' @param f any function
 #' @param value character string
 #' @name assignment
+NULL
 
 #' @rdname assignment
 #' @export

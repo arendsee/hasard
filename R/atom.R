@@ -12,6 +12,7 @@
 #' @param op command for cache function
 #' @param ... anything
 #' @name basic_functions
+NULL
 
 #' @rdname basic_functions
 #' @export
