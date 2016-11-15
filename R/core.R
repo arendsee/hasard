@@ -17,6 +17,7 @@ NULL
 #' @param .effect a function of a and b
 #' @param .cacher the caching function
 #' @param ... constant arguments that will be written into the closure
+#' @export
 hnode <- function(
   f,
   .itype  = '*',
@@ -100,6 +101,7 @@ make_validator <- function(f, vclass){
 #' @param fput caches the input
 #' @param fget returns the cached value
 #' @return a caching function
+#' @export
 make_cacher <- function(fchk, fdel, fput, fget){
   function(op, ...){
     switch(
@@ -139,6 +141,7 @@ compose <- function(...){
 #' 
 #' @param x any thing
 #' @return character a class definition
+#' @export
 rclass <- function(x){
   lapply(x, function(.) ifelse(is.list(.), rclass(.), class(.)[1])) %>%
     unlist %>%
