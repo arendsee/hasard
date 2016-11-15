@@ -10,7 +10,7 @@
 \alias{true}
 \title{Basic functions}
 \usage{
-id(x)
+id(x, ...)
 
 true(...)
 

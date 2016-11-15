@@ -41,7 +41,7 @@ hsource_ <- function(
     if(.delete){ .cacher('del') }
     if(!.cacher('chk')){
       b <- do.call(.f, .args) 
-      B <- owrap(b=b)
+      B <- owrap(b)
       runall(.effect, b=b)
       .cacher('put', b)
     } else {
@@ -107,7 +107,7 @@ hpipe_ <- function(
     } else {
       b <- do.call(.fail, append(list(.f, a), .args)) 
     }
-    B <- .owrap(A=x, b=b)
+    B <- .owrap(b, A=x)
 
     runall(.effect, A=x, B=B)
     .cacher('put', B)

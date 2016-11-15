@@ -16,7 +16,7 @@ NULL
 
 #' @rdname basic_functions
 #' @export
-id <- function(x){
+id <- function(x, ...){
   x
 }
 
