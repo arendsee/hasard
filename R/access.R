@@ -4,21 +4,21 @@
 #'   \item htype - Get or set types for unary function
 #'   \item nhtypes - The number of types a function has (2 for unary functions)
 #'   \item ip,op - get input and output types
-#'   \item inode,onode - get/set input and output nodes
+#'   \item inode - get/set input nodes
 #' }
 #' 
 #' @param f any function
 #' @param value character string
-#' @name assignment
+#' @name access
 NULL
 
-#' @rdname assignment
+#' @rdname access
 #' @export
 htype <- function(f){
   attr(f, 'htype')
 }
 
-#' @rdname assignment
+#' @rdname access
 #' @export
 `htype<-` <- function(f, value){
   if(npositional(f) != (length(value) - 1)){
@@ -29,45 +29,32 @@ htype <- function(f){
   f
 }
 
-#' @rdname assignment
+#' @rdname access
 #' @export
 nhtypes <- function(f){
   length(htype(f))
 }
 
-#' @rdname assignment
+#' @rdname access
 #' @export
 inode <- function(f){
-  attr(f, 'inode')
+  formals(f)$inode
 }
 
-#' @rdname assignment
+#' @rdname access
 #' @export
 `inode<-` <- function(f, value){
-  attr(f, 'inode') <- value
+  formals(f)$inode <- value
   f
 }
 
-#' @rdname assignment
-#' @export
-onode <- function(f){
-  attr(f, 'onode')
-}
-
-#' @rdname assignment
-#' @export
-`onode<-` <- function(f, value){
-  attr(f, 'onode') <- value
-  f
-}
-
-#' @rdname assignment
+#' @rdname access
 #' @export
 ip <- function(f) {
   htype(f)[1]
 }
 
-#' @rdname assignment
+#' @rdname access
 #' @export
 `ip<-` <- function(f, value){
   if(is.null(htype(f))){
@@ -78,13 +65,13 @@ ip <- function(f) {
   f
 }
 
-#' @rdname assignment
+#' @rdname access
 #' @export
 op <- function(f) {
   htype(f)[2]
 }
 
-#' @rdname assignment
+#' @rdname access
 #' @export
 `op<-` <- function(f, value){
   if(is.null(htype(f))){

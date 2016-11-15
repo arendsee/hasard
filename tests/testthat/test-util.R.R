@@ -1,5 +1,5 @@
 context("util.R")
-context("assignment.R")
+context("access.R")
 
 test_that(
   "Type and class functions work",
