@@ -1,4 +1,6 @@
-[![Travis-CI Build Status](https://travis-ci.org/arendsee/hasard.svg?branch=master)](https://travis-ci.org/arendsee/hasard)
-[![Coverage Status](https://img.shields.io/codecov/c/github/arendsee/hasard/master.svg)](https://codecov.io/github/arendsee/hasard?branch=master)
+[![Travis-CI Build Status](https://travis-ci.org/arendsee/pied.svg?branch=master)](https://travis-ci.org/arendsee/pied)
+[![Coverage Status](https://img.shields.io/codecov/c/github/arendsee/pied/master.svg)](https://codecov.io/github/arendsee/pied?branch=master)
 
-# Hasard
+# Pied
+
+Make all those rats go away

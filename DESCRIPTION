@@ -1,10 +1,10 @@
-Package: hasard
+Package: pied
 Title: functions for compositional, bifurcating pipelines
 Version: 0.1.0
 Author: Zebulun Arendsee
 Maintainer: Zebulun Arendsee <arendsee@iastate.edu>
-URL: https://github.com/arendsee/hasard
-BugReports: https://github.com/arendsee/hasard/issues
+URL: https://github.com/arendsee/pied
+BugReports: https://github.com/arendsee/pied/issues
 Description: Functions for compositional, bifurcating pipelines.
 Depends:
     R (>= 3.2.0)

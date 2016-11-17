@@ -1,17 +1,17 @@
 ---
-title: "Introduction to Hasard"
+title: "Introduction to Pied"
 author: "Zebulun Arendsee"
 date: "`r Sys.Date()`"
 output:
     rmarkdown::html_vignette:
         fig_caption: yes
 vignette: >
-  %\VignetteIndexEntry{Introduction to Hasard}
+  %\VignetteIndexEntry{Introduction to pied}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
-`hasard` is designed to cleanly separate the elements of a workflow.
+`pied` is designed to cleanly separate the elements of a workflow.
 
 ## Elements of analysis
 
@@ -30,14 +30,14 @@ Also the code should be readable, reusable, and flexible.
 
 ## Test case
 
-`hasard`'s real power is in highly-branched workflows with complex data and
+`pied`'s real power is in highly-branched workflows with complex data and
 many visualization and logging requirements.
 
 In this test case I will make a simple hierarchical cluster of the iris data
 set.
 
 ```{r, echo=TRUE}
-require(hasard)
+require(pied)
 require(magrittr)
 ```
 
@@ -198,7 +198,7 @@ original trival function `function(x,...){dist(x,...)}` has grown into a
 20-line unreadable mess. Even worse, this mess may need to be duplicated into
 the other functions.
 
-`hasard`'s solution is to partition each function in the pipeline into the
+`pied`'s solution is to partition each function in the pipeline into the
 following elements: a pure function, effect functions, a cache function, a
 validator function, and a pass and a fail function. This composite function can
 be easily created with the `hnode` command.

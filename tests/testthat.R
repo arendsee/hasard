@@ -1,4 +1,4 @@
 library(testthat)
-library(hasard)
+library(pied)
 
-test_check("hasard")
+test_check("pied")
