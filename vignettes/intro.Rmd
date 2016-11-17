@@ -11,24 +11,257 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-## Vignette Info
+`hasard` is designed to cleanly separate the elements of a workflow.
 
-Compose things, yay!
+## Elements of analysis
 
-## Figures
+A computational pipeline is a composition of these primary elements:
 
-```{r, fig.show='hold', fig.cap='Hey, this is a caption'}
-plot(1:10)
-plot(10:1)
+ * a directed graph of data transformations
+ * descriptive functions of the final and possibly intermediate data
+ * configuration handling
+ * data validation
+ * error handling and logging
+ * caching results, determining if caches are out-of-date, refreshing them
+ * parallelization and other performance issues
+ * visualization of the pipeline
+
+Also the code should be readable, reusable, and flexible.
+
+## Test case
+
+`hasard`'s real power is in highly-branched workflows with complex data and
+many visualization and logging requirements.
+
+In this test case I will make a simple hierarchical cluster of the iris data
+set.
+
+```{r, echo=TRUE}
+require(hasard)
+require(magrittr)
 ```
 
-## Mathy math
 
-$Y = X\beta + \epsilon$
+```{r}
+# Load a builtin R dataset and return
+f_load_data <- function() {
+  data(iris, envir=environment()) 
+  iris$Species <- NULL
+  iris
+}
 
-look! A footnote! footnote^[see, here it is!]
+# Normalize the numeric columns
+f_normalize <- function(x) {
+  as.data.frame(lapply(x, function(x) (x - mean(x)) / sd(x))) 
+}
+
+# Build a distance matrix
+f_dist <- function(x, ...) {
+  dist(x, ...)
+}
+
+# Build a hierarchical cluster
+f_hclust <- function(x, ...) {
+  hclust(x, ...)
+}
+```
+
+With a bit of magrittr magic these can be composed into a simple pipeline that
+produces a single plot.
+
+```{r, echo=TRUE, fig.show='hold'}
+f_load_data() %>% f_normalize %>% f_dist %>% f_hclust %>% plot
+```
+
+This is beautiful, but what if we want to validate the inputs of each.
+
+I can add validation code to each function, calling an error on a negative
+result:
+
+```{r}
+# Normalize the numeric columns
+f_normalize <- function(x) {
+  expected_names = c("Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width")
+  if(!
+    is.data.frame(x)                           &&
+    length(expected_names) == length(names(x)) &&
+    all(names(x) == expected_names)            &&
+    all(unlist(lapply(x, is.numeric)))
+  ){
+    stop("Bad input")
+  }
+  as.data.frame(lapply(x, function(x) (x - mean(x)) / sd(x))) 
+}
+
+# Build a distance matrix
+f_dist <- function(x, ...) {
+  if(!
+    is.data.frame(x)                                        &&
+    all(unlist(lapply(x, is.numeric)))                      &&
+    all(unlist(lapply(x, function(x) abs(mean(x)) < 1e-5))) &&
+    all(unlist(lapply(x, function(x) abs((sd(x) - 1)) < 1e-5)))
+  ){
+    stop("Bad input")
+  }
+  dist(x, ...)
+}
+
+# Build a hierarchical cluster
+f_hclust <- function(x, ...) {
+  if(! 'dist' %in% class(x)){
+    stop("Bad input")
+  }
+  hclust(x, ...)
+}
+```
+
+Now what if we want to print intermediate results? We can further modify our
+functions.
+
+```{r}
+f_dist <- function(x, ...) {
+  if(!
+    is.data.frame(x)                                        &&
+    all(unlist(lapply(x, is.numeric)))                      &&
+    all(unlist(lapply(x, function(x) abs(mean(x)) < 1e-5))) &&
+    all(unlist(lapply(x, function(x) abs((sd(x) - 1)) < 1e-5)))
+  ){
+    stop("Bad input")
+  }
+  result <- dist(x, ...)
+  print(summary(result))
+  result
+}
+```
+
+```{r, echo=TRUE, fig.show='hold'}
+f_load_data() %>% f_normalize %>% f_dist %>% f_hclust %>% nothing
+```
+
+Note `nothing` is just a function that prevents anything from being printed to
+output (like `/dev/null`), just to avoid cluttering the vignette. Now what if
+we decide we don't like always printing summaries, but only if verbose is set.
+
+```{r}
+f_dist <- function(x, verbose=FALSE, ...) {
+  if(!
+    is.data.frame(x)                                        &&
+    all(unlist(lapply(x, is.numeric)))                      &&
+    all(unlist(lapply(x, function(x) abs(mean(x)) < 1e-5))) &&
+    all(unlist(lapply(x, function(x) abs((sd(x) - 1)) < 1e-5)))
+  ){
+    stop("Bad input")
+  }
+  result <- dist(x, ...)
+  if(verbose){
+    print(summary(result))
+  }
+  result
+}
+```
+
+```{r, echo=TRUE, fig.show='hold'}
+f_load_data() %>% f_normalize %>% f_dist(verbose=TRUE) %>% f_hclust %>% nothing
+```
+
+Now what if we also want to optionally plot the intermediate data and
+optionally cache the results?
+
+```{r}
+f_dist <- function(x, verbose=FALSE, doplot=FALSE, cache="", ...) {
+  if(!
+    is.data.frame(x)                                        &&
+    all(unlist(lapply(x, is.numeric)))                      &&
+    all(unlist(lapply(x, function(x) abs(mean(x)) < 1e-5))) &&
+    all(unlist(lapply(x, function(x) abs((sd(x) - 1)) < 1e-5)))
+  ){
+    stop("Bad input")
+  }
+  if(file.exists(cache)){
+    load(cache)
+  } else {
+    result <- dist(x, ...)
+    save(result, cache)
+  }
+  if(verbose){
+    print(summary(result))
+  }
+  if(doplot){
+    plot(result)
+  }
+  result
+}
+```
+
+This is still a very minimal example of how bloated a function can become. The
+original trival function `function(x,...){dist(x,...)}` has grown into a
+20-line unreadable mess. Even worse, this mess may need to be duplicated into
+the other functions.
+
+`hasard`'s solution is to partition each function in the pipeline into the
+following elements: a pure function, effect functions, a cache function, a
+validator function, and a pass and a fail function. This composite function can
+be easily created with the `hnode` command.
 
 
-```{r, echo=FALSE, results='asis'}
-knitr::kable(head(mtcars, 10))
+```{r}
+v_iris <- function(x) {
+  expected_names = c("Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width")
+  is.data.frame(x)                           &&
+  length(expected_names) == length(names(x)) &&
+  all(names(x) == expected_names)            &&
+  all(unlist(lapply(x, is.numeric)))
+}
+
+v_normed_df <- function(x, ...) {
+  is.data.frame(x)                                        &&
+  all(unlist(lapply(x, is.numeric)))                      &&
+  all(unlist(lapply(x, function(x) abs(mean(x)) < 1e-5))) &&
+  all(unlist(lapply(x, function(x) abs((sd(x) - 1)) < 1e-5)))
+}
+
+# Build a hierarchical cluster
+v_dist <- function(x, ...) {
+  'dist' %in% class(x)
+}
+
+psum_template <- function(file){
+  function(a, b){
+    sink(file)
+    cat("----------------------------------------------\n")
+    for(i in 1:length(a)){
+      cat(sprintf("--- input %d\n", i))
+      print(summary(a[[i]]))
+    }
+    cat("--- output\n")
+    print(summary(b))
+    cat("----------------------------------------------\n")
+    sink()
+  }
+}
+
+plot_template <- function(file){
+  function(a, b){
+    pdf(file)
+    plot(b)
+    dev.off()
+  }
+}
+
+h_load_data <- hnode(f_load_data)
+
+h_normalize <- hnode(
+  f_normalize,
+  inode  = list(h_load_data),
+  val    = v_iris,
+  effect = list(psum_template('log-norm.txt'), plot_template('log-norm.pdf'))
+)
+
+h_dist <- hnode(
+  f_dist,
+  args   = list(method='euclidean'),
+  inode  = list(h_normalize),
+  val    = v_normalized_df,
+  effect = psum_template('log-dist.txt')
+)
 ```

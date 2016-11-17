@@ -4,12 +4,12 @@
 \alias{runall}
 \title{Run functions for their side effects}
 \usage{
-runall(x, ...)
+runall(f, ...)
 }
 \arguments{
-\item{x}{a function or a list of functions}
+\item{f}{a function or a list of functions}
 
-\item{...}{arguments sent to x}
+\item{...}{arguments sent to f}
 }
 \description{
 Run functions for their side effects
