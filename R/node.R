@@ -3,17 +3,19 @@
 #' @section Arguments:
 #'
 #' \itemize{
-#'   \item .itype input type
-#'   \item .otype output type
-#'   \item .inode input nodes
-#'   \item .val (a -> Bool) - determines in input is correct
-#'   \item .pass function called if val returns TRUE
-#'   \item .fail function called if val returns FALSE
-#'   \item .effect a function of a and b
-#'   \item .cacher the caching function
+#'   \item itype input type
+#'   \item otype output type
+#'   \item inode input nodes
+#'   \item val (a -> Bool) - determines in input is correct
+#'   \item pass function called if val returns TRUE
+#'   \item fail function called if val returns FALSE
+#'   \item effect a function of a and b
+#'   \item cacher the caching function
 #' }
 #'
 #' @param f pure function
+#' @param h hnode function
+#' @param value right hand value for assignment
 #' @param ... see Arguments
 #' @name node
 NULL
@@ -130,3 +132,84 @@ hnode <- function(f, ...){
   }
   fun
 }
+
+
+#' @rdname node
+#' @export
+h_fun    <- function(h) { formals(h)$.fun    }
+
+#' @rdname node
+#' @export
+h_inode  <- function(h) { formals(h)$.inode  }
+
+#' @rdname node
+#' @export
+h_itype  <- function(h) { formals(h)$.itype  }
+
+#' @rdname node
+#' @export
+h_otype  <- function(h) { formals(h)$.otype  }
+
+#' @rdname node
+#' @export
+h_val    <- function(h) { formals(h)$.val    }
+
+#' @rdname node
+#' @export
+h_pass   <- function(h) { formals(h)$.pass   }
+
+#' @rdname node
+#' @export
+h_fail   <- function(h) { formals(h)$.fail   }
+
+#' @rdname node
+#' @export
+h_effect <- function(h) { formals(h)$.effect }
+
+#' @rdname node
+#' @export
+h_cacher <- function(h) { formals(h)$.cacher }
+
+#' @rdname node
+#' @export
+h_args   <- function(h) { formals(h)$.args   }
+
+#' @rdname node
+#' @export
+`h_fun<-`    <- function(h, value) { formals(h)$.fun    <- value; h }
+
+#' @rdname node
+#' @export
+`h_inode<-`  <- function(h, value) { formals(h)$.inode  <- value; h }
+
+#' @rdname node
+#' @export
+`h_itype<-`  <- function(h, value) { formals(h)$.itype  <- value; h }
+
+#' @rdname node
+#' @export
+`h_otype<-`  <- function(h, value) { formals(h)$.otype  <- value; h }
+
+#' @rdname node
+#' @export
+`h_val<-`    <- function(h, value) { formals(h)$.val    <- value; h }
+
+#' @rdname node
+#' @export
+`h_pass<-`   <- function(h, value) { formals(h)$.pass   <- value; h }
+
+#' @rdname node
+#' @export
+`h_fail<-`   <- function(h, value) { formals(h)$.fail   <- value; h }
+
+#' @rdname node
+#' @export
+`h_effect<-` <- function(h, value) { formals(h)$.effect <- value; h }
+
+#' @rdname node
+#' @export
+`h_cacher<-` <- function(h, value) { formals(h)$.cacher <- value; h }
+
+#' @rdname node
+#' @export
+`h_args<-`   <- function(h, value) { formals(h)$.args   <- value; h }
