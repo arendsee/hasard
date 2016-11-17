@@ -39,7 +39,7 @@ hsource_ <- function(
     if(.delete){ .cacher('del') }
     if(!.cacher('chk')){
       b <- do.call(.f, .args) 
-      runall(.effect, b=b)
+      runall(.effect, b)
       .cacher('put', b)
     } else {
       b <- .cacher('get')
@@ -110,7 +110,7 @@ hpipe_ <- function(
       b <- do.call(.fail, funlist)
     }
 
-    runall(.effect, b=b, a=a)
+    runall(.effect, b, h_input=a)
     .cacher('put', b)
     b
   }
