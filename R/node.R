@@ -82,8 +82,8 @@ hpipe_ <- function(
       return(.cacher('get'))
     }
 
-    if(class(.inode) != 'list'){
-      error("expected class(.inode) == 'list', found '%s'", class(.inode))
+    if(all(class(.inode) != 'list')){
+      .inode <- list(.inode)
     }
 
     if(!all(unlist(lapply(.inode, is.hnode)))){
