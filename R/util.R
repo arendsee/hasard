@@ -41,20 +41,21 @@ error <- function(...){
 
 #' Run functions for their side effects
 #' 
-#' @param x a function or a list of functions
-#' @param ... arguments sent to x
+#' @param f a function or a list of functions
+#' @param ... arguments sent to f
 #' @return NULL
 #' @export
-runall <- function(x, ...){
-  if(is.list(x)){
-    if(all(unlist(lapply(x, is.function)))){
-      lapply(x, execute, ...)
-    } else {
-      error("All elements of x must be functions")
-    }
-  } else {
-    x(...)
+runall <- function(f, ...){
+  if(!class(f) == 'list'){
+    f <- list(f)
   }
+
+  if(all(unlist(lapply(f, is.function)))){
+    lapply(f, execute, ...)
+  } else {
+    error("f must be a function or list of functions")
+  }
+
   NULL
 }
 

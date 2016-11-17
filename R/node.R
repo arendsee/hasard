@@ -108,7 +108,7 @@ hpipe_ <- function(
       b <- do.call(.fail, funlist)
     }
 
-    runall(.effect, b=b, b=b)
+    runall(.effect, b=b, a=a)
     .cacher('put', b)
     b
   }
