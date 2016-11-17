@@ -35,10 +35,9 @@ hsource_ <- function(
     .delete = FALSE,
     .args   = args
   ) {
-    b = NULL
     if(.delete){ .cacher('del') }
     if(!.cacher('chk')){
-      b <- do.call(.f, .args) 
+      b <- do.call(.f, .args)
       runall(.effect, b)
       .cacher('put', b)
     } else {
@@ -100,7 +99,7 @@ hpipe_ <- function(
       )
     }
 
-    a <- lapply(.inode, execute) 
+    a <- lapply(.inode, execute)
 
     funlist <- append(.fun, append(a, args))
 
@@ -176,40 +175,103 @@ h_args   <- function(h) { formals(h)$.args   }
 
 #' @rdname node
 #' @export
-`h_fun<-`    <- function(h, value) { formals(h)$.fun    <- value; h }
+h_delete   <- function(h) { formals(h)$.delete }
 
 #' @rdname node
 #' @export
-`h_inode<-`  <- function(h, value) { formals(h)$.inode  <- value; h }
+`h_fun<-` <- function(h, value) {
+  a <- attributes(h)
+  formals(h)$.fun <- value
+  attributes(h) <- a
+  h
+}
 
 #' @rdname node
 #' @export
-`h_itype<-`  <- function(h, value) { formals(h)$.itype  <- value; h }
+`h_inode<-` <- function(h, value) {
+  a <- attributes(h)
+  formals(h)$.inode <- value
+  attributes(h) <- a
+  h
+}
 
 #' @rdname node
 #' @export
-`h_otype<-`  <- function(h, value) { formals(h)$.otype  <- value; h }
+`h_itype<-` <- function(h, value) {
+  a <- attributes(h)
+  formals(h)$.itype <- value
+  attributes(h) <- a
+  h
+}
 
 #' @rdname node
 #' @export
-`h_val<-`    <- function(h, value) { formals(h)$.val    <- value; h }
+`h_otype<-` <- function(h, value) {
+  a <- attributes(h)
+  formals(h)$.otype <- value
+  attributes(h) <- a
+  h
+}
 
 #' @rdname node
 #' @export
-`h_pass<-`   <- function(h, value) { formals(h)$.pass   <- value; h }
+`h_val<-` <- function(h, value) {
+  a <- attributes(h)
+  formals(h)$.val <- value
+  attributes(h) <- a
+  h
+}
 
 #' @rdname node
 #' @export
-`h_fail<-`   <- function(h, value) { formals(h)$.fail   <- value; h }
+`h_pass<-` <- function(h, value) {
+  a <- attributes(h)
+  formals(h)$.pass <- value
+  attributes(h) <- a
+  h
+}
 
 #' @rdname node
 #' @export
-`h_effect<-` <- function(h, value) { formals(h)$.effect <- value; h }
+`h_fail<-` <- function(h, value) {
+  a <- attributes(h)
+  formals(h)$.fail <- value
+  attributes(h) <- a
+  h
+}
 
 #' @rdname node
 #' @export
-`h_cacher<-` <- function(h, value) { formals(h)$.cacher <- value; h }
+`h_effect<-` <- function(h, value) {
+  a <- attributes(h)
+  formals(h)$.effect <- value
+  attributes(h) <- a
+  h
+}
 
 #' @rdname node
 #' @export
-`h_args<-`   <- function(h, value) { formals(h)$.args   <- value; h }
+`h_cacher<-` <- function(h, value) {
+  a <- attributes(h)
+  formals(h)$.cacher <- value
+  attributes(h) <- a
+  h
+}
+
+#' @rdname node
+#' @export
+`h_args<-` <- function(h, value) {
+  a <- attributes(h)
+  formals(h)$.args <- value
+  attributes(h) <- a
+  h
+}
+
+#' @rdname node
+#' @export
+`h_delete<-` <- function(h, value) {
+  a <- attributes(h)
+  formals(h)$.delete <- as.logical(value)
+  attributes(h) <- a
+  h
+}

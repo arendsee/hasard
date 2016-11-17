@@ -5,6 +5,8 @@
 \alias{h_args<-}
 \alias{h_cacher}
 \alias{h_cacher<-}
+\alias{h_delete}
+\alias{h_delete<-}
 \alias{h_effect}
 \alias{h_effect<-}
 \alias{h_fail}
@@ -47,6 +49,8 @@ h_cacher(h)
 
 h_args(h)
 
+h_delete(h)
+
 h_fun(h) <- value
 
 h_inode(h) <- value
@@ -66,6 +70,8 @@ h_effect(h) <- value
 h_cacher(h) <- value
 
 h_args(h) <- value
+
+h_delete(h) <- value
 }
 \arguments{
 \item{f}{pure function}
@@ -83,14 +89,14 @@ Build function
 
 
 \itemize{
-  \item .itype input type
-  \item .otype output type
-  \item .inode input nodes
-  \item .val (a -> Bool) - determines in input is correct
-  \item .pass function called if val returns TRUE
-  \item .fail function called if val returns FALSE
-  \item .effect a function of a and b
-  \item .cacher the caching function
+  \item itype input type
+  \item otype output type
+  \item inode input nodes
+  \item val (a -> Bool) - determines in input is correct
+  \item pass function called if val returns TRUE
+  \item fail function called if val returns FALSE
+  \item effect a function of a and b
+  \item cacher the caching function
 }
 }
 
