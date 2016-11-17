@@ -5,7 +5,7 @@
 #' @export
 compose <- function(...){
   compose_ <- function(f, g) {
-    fun <- function(.) { g(f(.)) }
+    fun <- function(., ...) { g(f(., ...)) }
     if(classcheck('hnode', f, g)){
       if(! are_composable(f, g) ){
         msg <- "Illegal composition of (%s -> %s) and (%s -> %s)"
