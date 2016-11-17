@@ -55,8 +55,8 @@ hsource_ <- function(
 
 hpipe_ <- function(
   f,
-  inode,
-  itype   = rep('*', length(inode)),
+  inode   = nothing,
+  itype   = '*',
   otype   = '*',
   val     = true,
   pass    = execute,
