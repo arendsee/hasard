@@ -43,20 +43,16 @@ error <- function(...){
 #' 
 #' @param f a function or a list of functions
 #' @param ... arguments sent to f
-#' @return NULL
 #' @export
 runall <- function(f, ...){
-  if(!class(f) == 'list'){
+  if(!all(class(f) == 'list')){
     f <- list(f)
   }
-
   if(all(unlist(lapply(f, is.function)))){
-    lapply(f, execute, ...)
+    for(fun in f){ fun(...) }
   } else {
     error("f must be a function or list of functions")
   }
-
-  NULL
 }
 
 #' Check the htype
