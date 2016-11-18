@@ -28,13 +28,7 @@ hsource_ <- function(
   args   = list()
 ){
 
-  fun <- function(
-    .f      = f,
-    .effect = effect,
-    .cacher = cacher,
-    .delete = FALSE,
-    .args   = args
-  ) {
+  fun <- function() {
     if(.delete){ .cacher('del') }
     if(!.cacher('chk')){
       b <- do.call(.f, .args)
@@ -45,6 +39,12 @@ hsource_ <- function(
     }
     b
   }
+
+  formals(fun)$.f      = substitute(f)
+  formals(fun)$.effect = substitute(effect)
+  formals(fun)$.cacher = substitute(cacher)
+  formals(fun)$.delete = FALSE
+  formals(fun)$.args   = substitute(args)
 
   htype(fun) <- c(NA, otype)
 
@@ -66,17 +66,7 @@ hpipe_ <- function(
   args    = list()
 ){
 
-  fun <- function(
-    .fun     = f,
-    .inode   = inode,
-    .val     = val,
-    .pass    = pass,
-    .fail    = fail,
-    .effect  = effect,
-    .cacher  = cacher,
-    .delete  = FALSE,
-    .args    = args
-  ){
+  fun <- function(){
     if(.delete){ .cacher('del') }
 
     if(.cacher('chk')){
@@ -114,6 +104,16 @@ hpipe_ <- function(
     b
   }
 
+  formals(fun)$.fun     = substitute(f)
+  formals(fun)$.inode   = substitute(inode)
+  formals(fun)$.val     = substitute(val)
+  formals(fun)$.pass    = substitute(pass)
+  formals(fun)$.fail    = substitute(fail)
+  formals(fun)$.effect  = substitute(effect)
+  formals(fun)$.cacher  = substitute(cacher)
+  formals(fun)$.delete  = FALSE
+  formals(fun)$.args    = substitute(args)
+
   htype(fun) <- c(unlist(lapply(inode, op)), otype)
 
   fun <- add_class(fun, 'hnode')
@@ -129,9 +129,11 @@ hnode <- function(f, ...){
   } else {
     fun <- hpipe_(f, ...)
   }
+  a <- attributes(fun)
+  formals(fun)$.fun <- substitute(f)
+  attributes(fun) <- a
   fun
 }
-
 
 #' @rdname node
 #' @export
@@ -181,7 +183,7 @@ h_delete   <- function(h) { formals(h)$.delete }
 #' @export
 `h_fun<-` <- function(h, value) {
   a <- attributes(h)
-  formals(h)$.fun <- value
+  formals(h)$.fun <- substitute(value)
   attributes(h) <- a
   h
 }
@@ -190,7 +192,7 @@ h_delete   <- function(h) { formals(h)$.delete }
 #' @export
 `h_inode<-` <- function(h, value) {
   a <- attributes(h)
-  formals(h)$.inode <- value
+  formals(h)$.inode <- substitute(value)
   attributes(h) <- a
   h
 }
@@ -199,7 +201,7 @@ h_delete   <- function(h) { formals(h)$.delete }
 #' @export
 `h_itype<-` <- function(h, value) {
   a <- attributes(h)
-  formals(h)$.itype <- value
+  formals(h)$.itype <- substitute(value)
   attributes(h) <- a
   h
 }
@@ -208,7 +210,7 @@ h_delete   <- function(h) { formals(h)$.delete }
 #' @export
 `h_otype<-` <- function(h, value) {
   a <- attributes(h)
-  formals(h)$.otype <- value
+  formals(h)$.otype <- substitute(value)
   attributes(h) <- a
   h
 }
@@ -217,7 +219,7 @@ h_delete   <- function(h) { formals(h)$.delete }
 #' @export
 `h_val<-` <- function(h, value) {
   a <- attributes(h)
-  formals(h)$.val <- value
+  formals(h)$.val <- substitute(value)
   attributes(h) <- a
   h
 }
@@ -226,7 +228,7 @@ h_delete   <- function(h) { formals(h)$.delete }
 #' @export
 `h_pass<-` <- function(h, value) {
   a <- attributes(h)
-  formals(h)$.pass <- value
+  formals(h)$.pass <- substitute(value)
   attributes(h) <- a
   h
 }
@@ -235,7 +237,7 @@ h_delete   <- function(h) { formals(h)$.delete }
 #' @export
 `h_fail<-` <- function(h, value) {
   a <- attributes(h)
-  formals(h)$.fail <- value
+  formals(h)$.fail <- substitute(value)
   attributes(h) <- a
   h
 }
@@ -244,7 +246,7 @@ h_delete   <- function(h) { formals(h)$.delete }
 #' @export
 `h_effect<-` <- function(h, value) {
   a <- attributes(h)
-  formals(h)$.effect <- value
+  formals(h)$.effect <- substitute(value)
   attributes(h) <- a
   h
 }
@@ -253,7 +255,7 @@ h_delete   <- function(h) { formals(h)$.delete }
 #' @export
 `h_cacher<-` <- function(h, value) {
   a <- attributes(h)
-  formals(h)$.cacher <- value
+  formals(h)$.cacher <- substitute(value)
   attributes(h) <- a
   h
 }
@@ -262,7 +264,7 @@ h_delete   <- function(h) { formals(h)$.delete }
 #' @export
 `h_args<-` <- function(h, value) {
   a <- attributes(h)
-  formals(h)$.args <- value
+  formals(h)$.args <- substitute(value)
   attributes(h) <- a
   h
 }
