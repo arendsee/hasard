@@ -1,27 +1,3 @@
-#' Collapse all arguments into unary closure
-#'
-#' @param f arbitrary function
-#' @param ... additional arguments
-#' @export
-unify <- function(f, ...){
-  function(x){
-    f(x, ...)
-  }
-}
-
-#' Get number of positional arguments
-#'
-#' @param f arbitrary function
-#' @export
-npositional <- function(f){
-  formals(f)                  %>%
-    lapply(deparse)           %>%
-    lapply(nchar)             %>%
-    unlist                    %>%
-    { .[!names(.) == '...'] } %>%
-    { sum(. == 0) }
-}
-
 #' A wrapper for warning handling and reporting
 #' 
 #' @param ... arguments passed to sprintf
@@ -39,6 +15,38 @@ error <- function(...){
   stop(msg)
 }
 
+#' Collapse all arguments into unary closure
+#'
+#' @param f arbitrary function
+#' @param ... additional arguments
+#' @export
+unify <- function(f, ...){
+  function(x){
+    f(x, ...)
+  }
+}
+
+#' Get number of formal positional arguments
+#'
+#' @param f arbitrary function
+#' @export
+npositional <- function(f){
+  formals(f)                  %>%
+    lapply(deparse)           %>%
+    lapply(nchar)             %>%
+    unlist                    %>%
+    { .[!names(.) == '...'] } %>%
+    { sum(. == 0) }
+}
+
+#' Get number of formal arguments
+#'
+#' @param f arbitrary function
+#' @export
+nformals <- function(f){
+  length(formalArgs(f))
+}
+
 #' Run functions for their side effects
 #' 
 #' @param f a function or a list of functions
@@ -49,7 +57,7 @@ runall <- function(f, ...){
     f <- list(f)
   }
   if(all(unlist(lapply(f, is.function)))){
-    for(fun in f){ fun(...) }
+    lapply(f, execute, ...)
   } else {
     error("f must be a function or list of functions")
   }
@@ -82,50 +90,4 @@ add_class <- function(x, ...){
     x
   }
   Reduce(add_class_, unlist(list(...)), init=x)
-}
-
-#' Check if two functions are composable
-#' 
-#' @param f,g unary class functions
-#' @return logical
-#' @export
-are_composable <- function(f, g){
-  classcheck('unary', f, g) && ((op(f) == ip(g)) || (ip(g) == "*"))
-}
-
-#' Lift a value into a context
-#' 
-#' @param value anything
-#' @param state anything
-#' @return the value inside a context
-#' @export
-vlift <- function(value, state=list(ok=TRUE)) {
-  val <- list(value=value, state=state)
-  val <- add_class(val, 'state_bound')
-  val
-}
-
-#' Generic flift function: (a -> b) -> (F a -> F b)
-#' 
-#' @param f function of type (a -> b)
-#' @param s function of type (F a -> b -> F b)
-#' @return a state_bound datum
-#' @export
-#' 
-flift <- function(f, s) {
-  UseMethod("flift")
-}
-
-#' (a -> b) -> (F a -> F b)
-#'
-#' @param f function of type (a -> b)
-#' @param s function of type (F a -> b -> F b)
-#' @return a state_bound datum
-#' @export
-flift.state_bound <- function(f, s) {
-  function(x) {
-    val <- f(x$value)
-    state <- s(x, val)
-    vlift(value=val, state=state)
-  }
 }

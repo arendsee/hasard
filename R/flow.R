@@ -1,3 +1,12 @@
+#' Check if two functions are composable
+#' 
+#' @param f,g unary class functions
+#' @return logical
+#' @export
+are_composable <- function(f, g){
+  classcheck('unary', f, g) && ((op(f) == ip(g)) || (ip(g) == "*"))
+}
+
 #' Make composition of functions
 #' 
 #' @param ... two or more functions
