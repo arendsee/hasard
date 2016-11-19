@@ -11,12 +11,17 @@ test_that(
     expect_false(false(4, "u"))
     expect_false(false(TRUE))
 
+    expect_null(nothing())
     expect_null(nothing(4))
     expect_null(nothing(NULL))
     expect_null(nothing(TRUE))
     expect_null(nothing(1,1,NULL))
 
+    expect_null(blank())
+    expect_error(blank(1))
+
     expect_equal(id('a'), 'a')
+    expect_equal(id('a', 'b'), 'a')
 
     expect_null(nocache('del'))
     expect_null(nocache('put'))
