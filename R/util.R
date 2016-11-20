@@ -44,7 +44,7 @@ npositional <- function(f){
 #' @param f arbitrary function
 #' @export
 nformals <- function(f){
-  length(formalArgs(f))
+  length(methods::formalArgs(f))
 }
 
 #' Run functions for their side effects

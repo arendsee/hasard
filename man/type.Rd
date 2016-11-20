@@ -8,10 +8,15 @@
 \alias{nhargs}
 \alias{op}
 \alias{op<-}
+\alias{parse_type}
 \alias{type}
 \alias{type_str}
 \title{Access, set, and print function types}
 \usage{
+type_str(f)
+
+parse_type(x)
+
 htype(f)
 
 ip(f)
@@ -25,11 +30,11 @@ ip(f) <- value
 op(f) <- value
 
 nhargs(f)
-
-type_str(f)
 }
 \arguments{
 \item{f}{any function}
+
+\item{x}{type string}
 
 \item{value}{character string}
 }
@@ -49,5 +54,9 @@ inputs.
 but the last elements), and *op* prints the output type (the last element of
 the type vector). *nhtypes* counts the number of inputs. *type_str* converts
 from a character vector to a Haskell syntax function definition.
+
+*parse_type* converts whatever input it gets into a type (as a character
+vector). Legal input is 1) Haskell style type (e.g. 'a -> b') or 2) a
+character vector. Anything else will result in an error.
 }
 

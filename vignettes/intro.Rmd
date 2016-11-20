@@ -80,7 +80,7 @@ result:
 
 ```{r}
 # Normalize the numeric columns
-f_normalize <- function(x) {
+f_normalize_2 <- function(x) {
   expected_names = c("Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width")
   if(!
     is.data.frame(x)                           &&
@@ -94,7 +94,7 @@ f_normalize <- function(x) {
 }
 
 # Build a distance matrix
-f_dist <- function(x, ...) {
+f_dist_2 <- function(x, ...) {
   if(!
     is.data.frame(x)                                        &&
     all(unlist(lapply(x, is.numeric)))                      &&
@@ -107,7 +107,7 @@ f_dist <- function(x, ...) {
 }
 
 # Build a hierarchical cluster
-f_hclust <- function(x, ...) {
+f_hclust_2 <- function(x, ...) {
   if(! 'dist' %in% class(x)){
     stop("Bad input")
   }
@@ -119,7 +119,7 @@ Now what if we want to print intermediate results? We can further modify our
 functions.
 
 ```{r}
-f_dist <- function(x, ...) {
+f_dist_3 <- function(x, ...) {
   if(!
     is.data.frame(x)                                        &&
     all(unlist(lapply(x, is.numeric)))                      &&
@@ -135,7 +135,7 @@ f_dist <- function(x, ...) {
 ```
 
 ```{r, echo=TRUE, fig.show='hold'}
-f_load_data() %>% f_normalize %>% f_dist %>% f_hclust %>% nothing
+f_load_data() %>% f_normalize_2 %>% f_dist_3 %>% f_hclust_2 %>% nothing
 ```
 
 Note `nothing` is just a function that prevents anything from being printed to
@@ -143,7 +143,7 @@ output (like `/dev/null`), just to avoid cluttering the vignette. Now what if
 we decide we don't like always printing summaries, but only if verbose is set.
 
 ```{r}
-f_dist <- function(x, verbose=FALSE, ...) {
+f_dist_4 <- function(x, verbose=FALSE, ...) {
   if(!
     is.data.frame(x)                                        &&
     all(unlist(lapply(x, is.numeric)))                      &&
@@ -161,14 +161,14 @@ f_dist <- function(x, verbose=FALSE, ...) {
 ```
 
 ```{r, echo=TRUE, fig.show='hold'}
-f_load_data() %>% f_normalize %>% f_dist(verbose=TRUE) %>% f_hclust %>% nothing
+f_load_data() %>% f_normalize_2 %>% f_dist_4(verbose=TRUE) %>% f_hclust_2 %>% nothing
 ```
 
 Now what if we also want to optionally plot the intermediate data and
 optionally cache the results?
 
 ```{r}
-f_dist <- function(x, verbose=FALSE, doplot=FALSE, cache="", ...) {
+f_dist_5 <- function(x, verbose=FALSE, doplot=FALSE, cache="", ...) {
   if(!
     is.data.frame(x)                                        &&
     all(unlist(lapply(x, is.numeric)))                      &&
@@ -181,7 +181,7 @@ f_dist <- function(x, verbose=FALSE, doplot=FALSE, cache="", ...) {
     load(cache)
   } else {
     result <- dist(x, ...)
-    save(result, cache)
+    save(result, file=cache)
   }
   if(verbose){
     print(summary(result))
@@ -193,75 +193,168 @@ f_dist <- function(x, verbose=FALSE, doplot=FALSE, cache="", ...) {
 }
 ```
 
+```{r, echo=TRUE, fig.show='hold'}
+f_load_data()                                       %>%
+    f_normalize_2                                   %>%
+    f_dist_5(verbose=TRUE, cache="load_data.Rdata") %>%
+    f_hclust_2                                      %>%
+    nothing
+```
+
 This is still a very minimal example of how bloated a function can become. The
-original trival function `function(x,...){dist(x,...)}` has grown into a
+original trivial function `function(x,...){dist(x,...)}` has grown into a
 20-line unreadable mess. Even worse, this mess may need to be duplicated into
 the other functions.
+
+# Redoing with pied
 
 `pied`'s solution is to partition each function in the pipeline into the
 following elements: a pure function, effect functions, a cache function, a
 validator function, and a pass and a fail function. This composite function can
 be easily created with the `hnode` command.
 
+Here is the minimal pied example
 
 ```{r}
-v_iris <- function(x) {
-  expected_names = c("Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width")
-  is.data.frame(x)                           &&
-  length(expected_names) == length(names(x)) &&
-  all(names(x) == expected_names)            &&
-  all(unlist(lapply(x, is.numeric)))
-}
+# h_load_data <- hnode(f_load_data)
+# h_normalize <- hnode(f_normalize, h_load_data)
+# h_dist      <- hnode(f_dist,      h_normalize)
+# h_hclust    <- hnode(f_hclust,    h_dist)
+```
 
-v_normed_df <- function(x, ...) {
-  is.data.frame(x)                                        &&
-  all(unlist(lapply(x, is.numeric)))                      &&
-  all(unlist(lapply(x, function(x) abs(mean(x)) < 1e-5))) &&
-  all(unlist(lapply(x, function(x) abs((sd(x) - 1)) < 1e-5)))
-}
+`hnode` returns a function that should normally be called with no arguments.
+Each call recursively calls the input functions until a source function is
+reached.
 
-# Build a hierarchical cluster
-v_dist <- function(x, ...) {
-  'dist' %in% class(x)
-}
+Now we can begin expanding upon these basic functions. First I will add
+validators. Rather than writing validation code into the pure functions, I will
+write them as independent functions.
 
-psum_template <- function(file){
-  function(a, b){
-    sink(file)
-    cat("----------------------------------------------\n")
-    for(i in 1:length(a)){
-      cat(sprintf("--- input %d\n", i))
-      print(summary(a[[i]]))
-    }
-    cat("--- output\n")
-    print(summary(b))
-    cat("----------------------------------------------\n")
-    sink()
-  }
-}
+```{r}
+# v_iris <- function(x) {
+#   expected_names = c("Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width")
+#   is.data.frame(x)                           &&
+#   length(expected_names) == length(names(x)) &&
+#   all(names(x) == expected_names)            &&
+#   all(unlist(lapply(x, is.numeric)))
+# }
+#
+# v_normed_df <- function(x, ...) {
+#   is.data.frame(x)                                        &&
+#   all(unlist(lapply(x, is.numeric)))                      &&
+#   all(unlist(lapply(x, function(x) abs(mean(x)) < 1e-5))) &&
+#   all(unlist(lapply(x, function(x) abs((sd(x) - 1)) < 1e-5)))
+# }
+#
+# # Build a hierarchical cluster
+# v_dist <- function(x, ...) {
+#   'dist' %in% class(x)
+# }
+#
+# h_val(h$normalize) <- v_iris
+# h_val(h$dist)      <- v_normed_df
+# h_val(h$hclust)    <- v_dist
+# h$hclust()
+```
+Now lets add output summary functions to each
 
-plot_template <- function(file){
-  function(a, b){
-    pdf(file)
-    plot(b)
-    dev.off()
-  }
-}
+```{r}
+# h_effect(h$load_data) <- print
+# h_effect(h$normalize) <- print
+# h_effect(h$dist)      <- print
+# h_effect(h$hclust)    <- summary
+# h$hclust()
+```
 
-h_load_data <- hnode(f_load_data)
+```{r}
+#
+# #' @rdname access
+# #' @export
+# inode <- function(f){
+#   formals(f)$inode
+# }
+#
+# #' @rdname access
+# #' @export
+# `inode<-` <- function(f, value){
+#   formals(f)$inode <- value
+#   f
+# }
+#
+# f_load_data <- function() {
+#   data(iris, envir=environment())
+#   iris$Species <- NULL
+#   iris
+# }
+# f_normalize <- function(x) {
+#   as.data.frame(lapply(x, function(x) (x - mean(x)) / sd(x)))
+# }
+# f_dist <- function(x, ...) {
+#   dist(x, ...)
+# }
+# f_hclust <- function(x, ...) {
+#   hclust(x, ...)
+# }
+#
+# h_load_data <- hnode(f_load_data)
+# h_normalize <- hnode(f_normalize, h_load_data)
+# h_dist      <- hnode(f_dist,      h_normalize)
+# h_hclust    <- hnode(f_hclust,    h_dist)
+#
+# h_effect(h_load_data) <- compose(summary, print)
+# h_effect(h_normalize) <- compose(summary, print)
+# h_effect(h_dist)      <- compose(summary, print)
+# h_effect(h_hclust)    <- compose(summary, print)
+#
+# h_hclust()
+#
+```
 
-h_normalize <- hnode(
-  f_normalize,
-  inode  = list(h_load_data),
-  val    = v_iris,
-  effect = list(psum_template('log-norm.txt'), plot_template('log-norm.pdf'))
-)
+Now we can run this
 
-h_dist <- hnode(
-  f_dist,
-  args   = list(method='euclidean'),
-  inode  = list(h_normalize),
-  val    = v_normalized_df,
-  effect = psum_template('log-dist.txt')
-)
+```{r}
+# h$hclust()
+```
+
+
+```{r}
+# psum_template <- function(file){
+#   function(a, b){
+#     sink(file)
+#     cat("----------------------------------------------\n")
+#     for(i in 1:length(a)){
+#       cat(sprintf("--- input %d\n", i))
+#       print(summary(a[[i]]))
+#     }
+#     cat("--- output\n")
+#     print(summary(b))
+#     cat("----------------------------------------------\n")
+#     sink()
+#   }
+# }
+#
+# plot_template <- function(file){
+#   function(a, b){
+#     pdf(file)
+#     plot(b)
+#     dev.off()
+#   }
+# }
+#
+# h$load_data <- hnode(f_load_data)
+#
+# h$normalize <- hnode(
+#   f_normalize,
+#   inode  = list(h$load_data),
+#   val    = v_iris,
+#   effect = list(psum_template('log-norm.txt'), plot_template('log-norm.pdf'))
+# )
+#
+# h$dist <- hnode(
+#   f_dist,
+#   args   = list(method='euclidean'),
+#   inode  = list(h$normalize),
+#   val    = v_normalized_df,
+#   effect = psum_template('log-dist.txt')
+# )
 ```

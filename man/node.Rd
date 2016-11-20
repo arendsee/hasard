@@ -15,10 +15,6 @@
 \alias{h_fun<-}
 \alias{h_inode}
 \alias{h_inode<-}
-\alias{h_itype}
-\alias{h_itype<-}
-\alias{h_otype}
-\alias{h_otype<-}
 \alias{h_pass}
 \alias{h_pass<-}
 \alias{h_val}
@@ -27,15 +23,11 @@
 \alias{node}
 \title{Build function}
 \usage{
-hnode(f, ...)
+hnode(type, ...)
 
 h_fun(h)
 
 h_inode(h)
-
-h_itype(h)
-
-h_otype(h)
 
 h_val(h)
 
@@ -55,10 +47,6 @@ h_fun(h) <- value
 
 h_inode(h) <- value
 
-h_itype(h) <- value
-
-h_otype(h) <- value
-
 h_val(h) <- value
 
 h_pass(h) <- value
@@ -74,7 +62,7 @@ h_args(h) <- value
 h_delete(h) <- value
 }
 \arguments{
-\item{f}{pure function}
+\item{type}{a functional type ala Haskell}
 
 \item{...}{see Arguments}
 
@@ -89,8 +77,7 @@ Build function
 
 
 \itemize{
-  \item itype input type
-  \item otype output type
+  \item type function type
   \item inode input nodes
   \item val (a -> Bool) - determines in input is correct
   \item pass function called if val returns TRUE

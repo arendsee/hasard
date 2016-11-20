@@ -1,6 +1,24 @@
 context("type.R")
 
 test_that(
+  "Type parsing and stringification works",
+  {
+    foo <- function(){}
+    attributes(foo)$htype <- c('a', 'b', 'c')
+    bar <- function(){}
+    attributes(bar)$htype <- c(NA, 'd')
+
+    expect_equal(type_str(foo), '(a -> b -> c)')
+    expect_equal(type_str(bar), '(NA -> d)')
+
+    expect_equal(parse_type(c('a', 'b')), c('a', 'b'))
+    expect_equal(parse_type(c(NA, 'b')), c(NA, 'b'))
+    expect_equal(parse_type('a -> b'), c('a', 'b'))
+    expect_equal(parse_type('NA -> b'), c(NA, 'b'))
+  }
+)
+
+test_that(
   "Type assignment works",
   {
     foo <- function(){}
@@ -16,9 +34,6 @@ test_that(
     expect_true(is.na(ip(bar)))
     expect_equal(op(bar), 'd')
     expect_equal(nhargs(bar), 0)
-
-    expect_equal(type_str(foo), '(a -> b -> c)')
-    expect_equal(type_str(bar), '(NA -> d)')
 
     baz <- function(){}
     expect_null(htype(baz))

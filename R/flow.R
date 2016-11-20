@@ -21,7 +21,7 @@ compose <- function(...){
         error(msg, ip(f), op(f), ip(g), op(g))
       }
       htype(fun) <- c(ip(f), op(g))
-      inode(fun) <- inode(f)
+      h_inode(fun) <- h_inode(f)
       fun <- add_class(fun, 'hnode')
     }
     fun

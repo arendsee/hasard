@@ -3,8 +3,7 @@
 #' @section Arguments:
 #'
 #' \itemize{
-#'   \item itype input type
-#'   \item otype output type
+#'   \item type function type
 #'   \item inode input nodes
 #'   \item val (a -> Bool) - determines in input is correct
 #'   \item pass function called if val returns TRUE
@@ -13,7 +12,7 @@
 #'   \item cacher the caching function
 #' }
 #'
-#' @param f pure function
+#' @param type a functional type ala Haskell
 #' @param h hnode function
 #' @param value right hand value for assignment
 #' @param ... see Arguments
@@ -21,17 +20,17 @@
 NULL
 
 hsource_ <- function(
-  f,
-  otype  = '*',
+  type,
+  f      = nothing,
   effect = nothing,
   cacher = nocache,
   args   = list()
 ){
 
-  fun <- function() {
+  fun <- function(.fun, .effect, .delete, .cacher, .args){
     if(.delete){ .cacher('del') }
     if(!.cacher('chk')){
-      b <- do.call(.f, .args)
+      b <- do.call(.fun, .args)
       runall(.effect, b)
       .cacher('put', b)
     } else {
@@ -40,24 +39,22 @@ hsource_ <- function(
     b
   }
 
-  formals(fun)$.f      = substitute(f)
+  formals(fun)$.fun    = substitute(f)
   formals(fun)$.effect = substitute(effect)
   formals(fun)$.cacher = substitute(cacher)
   formals(fun)$.delete = FALSE
   formals(fun)$.args   = substitute(args)
 
-  htype(fun) <- c(NA, otype)
-
+  htype(fun) <- type
   fun <- add_class(fun, 'hnode', 'unary', 'source')
 
   fun
 }
 
 hpipe_ <- function(
-  f,
+  type,
+  f       = nothing,
   inode   = nothing,
-  itype   = '*',
-  otype   = '*',
   val     = true,
   pass    = execute,
   fail    = nothing,
@@ -66,27 +63,11 @@ hpipe_ <- function(
   args    = list()
 ){
 
-  fun <- function(){
+  fun <- function(.fun, .inode, .val, .pass, .fail, .effect, .delete, .cacher, .args){
     if(.delete){ .cacher('del') }
 
     if(.cacher('chk')){
       return(.cacher('get'))
-    }
-
-    if(all(class(.inode) != 'list')){
-      .inode <- list(.inode)
-    }
-
-    if(!all(unlist(lapply(.inode, is.hnode)))){
-      error("all inode functions must be of class 'hnode'")
-    }
-
-    if(npositional(.fun) != length(.inode)){
-      warn(
-        "found %d arguments in .inode, expected %d (from .fun)",
-        npositional(.fun),
-        length(.inode)
-      )
     }
 
     a <- lapply(.inode, execute)
@@ -104,18 +85,17 @@ hpipe_ <- function(
     b
   }
 
-  formals(fun)$.fun     = substitute(f)
-  formals(fun)$.inode   = substitute(inode)
-  formals(fun)$.val     = substitute(val)
-  formals(fun)$.pass    = substitute(pass)
-  formals(fun)$.fail    = substitute(fail)
-  formals(fun)$.effect  = substitute(effect)
-  formals(fun)$.cacher  = substitute(cacher)
-  formals(fun)$.delete  = FALSE
-  formals(fun)$.args    = substitute(args)
+  formals(fun)$.fun    <- substitute(f)
+  formals(fun)$.inode  <- substitute(inode)
+  formals(fun)$.val    <- substitute(val)
+  formals(fun)$.pass   <- substitute(pass)
+  formals(fun)$.fail   <- substitute(fail)
+  formals(fun)$.effect <- substitute(effect)
+  formals(fun)$.cacher <- substitute(cacher)
+  formals(fun)$.args   <- substitute(args)
+  formals(fun)$.delete <- FALSE
 
-  htype(fun) <- c(unlist(lapply(inode, op)), otype)
-
+  htype(fun) <- type
   fun <- add_class(fun, 'hnode')
 
   fun
@@ -123,45 +103,35 @@ hpipe_ <- function(
 
 #' @rdname node
 #' @export
-hnode <- function(f, ...){
-  if(npositional(f) == 0){
-    fun <- hsource_(f, ...)
+hnode <- function(type, ...){
+  type <- parse_type(type)
+  if(nhargs(type) == 0){
+    fun <- hsource_(type, ...)
   } else {
-    fun <- hpipe_(f, ...)
+    fun <- hpipe_(type, ...)
   }
-  a <- attributes(fun)
-  formals(fun)$.fun <- substitute(f)
-  attributes(fun) <- a
   fun
 }
 
 #' @rdname node
 #' @export
-h_fun    <- function(h) { formals(h)$.fun    }
+h_fun <- function(h) { formals(h)$.fun }
 
 #' @rdname node
 #' @export
-h_inode  <- function(h) { formals(h)$.inode  }
+h_inode <- function(h) { formals(h)$.inode }
 
 #' @rdname node
 #' @export
-h_itype  <- function(h) { formals(h)$.itype  }
+h_val <- function(h) { formals(h)$.val }
 
 #' @rdname node
 #' @export
-h_otype  <- function(h) { formals(h)$.otype  }
+h_pass <- function(h) { formals(h)$.pass }
 
 #' @rdname node
 #' @export
-h_val    <- function(h) { formals(h)$.val    }
-
-#' @rdname node
-#' @export
-h_pass   <- function(h) { formals(h)$.pass   }
-
-#' @rdname node
-#' @export
-h_fail   <- function(h) { formals(h)$.fail   }
+h_fail <- function(h) { formals(h)$.fail }
 
 #' @rdname node
 #' @export
@@ -173,15 +143,54 @@ h_cacher <- function(h) { formals(h)$.cacher }
 
 #' @rdname node
 #' @export
-h_args   <- function(h) { formals(h)$.args   }
+h_args <- function(h) { formals(h)$.args }
 
 #' @rdname node
 #' @export
-h_delete   <- function(h) { formals(h)$.delete }
+h_delete <- function(h) { formals(h)$.delete }
+
+# set_ <- function(field, check=true) {
+#   function(h, value){
+#     if(is.name(value)){
+#       v <- eval(value)
+#       k <- value
+#     } else {
+#       v <- value
+#       k <- substitute(value)
+#     }
+#     if(check(h, v)){
+#       a <- attributes(h)
+#       formals(h)[[field]] <- k
+#       attributes(h) <- a
+#     }
+#     h
+#   }
+# }
 
 #' @rdname node
 #' @export
-`h_fun<-` <- function(h, value) {
+`h_fun<-` <- function(h, value){
+  # if(is.name(value)){
+  #   v <- eval(value)
+  #   k <- value
+  # } else {
+  #   v <- value
+  #   k <- substitute(value)
+  # }
+  # if(!is.function(v)){
+  #   error("Expected function, got '%s'", paste0(class(v), collapse="', '"))
+  # }
+  # if(npositional(v) != nhargs(h)){
+  #   warn(
+  #     "found %d positional arguments in value, but this node requires a function of type %s",
+  #     npositional(v),
+  #     type_str(h)
+  #   )
+  # }
+  # a <- attributes(h)
+  # formals(h)$.fun <- k
+  # attributes(h) <- a
+  # h
   a <- attributes(h)
   formals(h)$.fun <- substitute(value)
   attributes(h) <- a
@@ -191,26 +200,22 @@ h_delete   <- function(h) { formals(h)$.delete }
 #' @rdname node
 #' @export
 `h_inode<-` <- function(h, value) {
+  # if(all(class(value) != 'list')){
+  #   value <- list(value)
+  # }
+  # if(!all(unlist(lapply(value, is.hnode)))){
+  #   warn("this function is not of class 'hnode'")
+  # }
+  # if(length(value) != nhargs(h)){
+  #   warn(
+  #     "found %d arguments in .inode, expected %d for function of type %s",
+  #     length(value),
+  #     nhargs(h),
+  #     type_str(h)
+  #   )
+  # }
   a <- attributes(h)
   formals(h)$.inode <- substitute(value)
-  attributes(h) <- a
-  h
-}
-
-#' @rdname node
-#' @export
-`h_itype<-` <- function(h, value) {
-  a <- attributes(h)
-  formals(h)$.itype <- substitute(value)
-  attributes(h) <- a
-  h
-}
-
-#' @rdname node
-#' @export
-`h_otype<-` <- function(h, value) {
-  a <- attributes(h)
-  formals(h)$.otype <- substitute(value)
   attributes(h) <- a
   h
 }

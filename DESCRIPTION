@@ -10,6 +10,7 @@ Depends:
     R (>= 3.2.0)
 Imports:
     magrittr,
+    methods,
     purrr
 License: GPL-3 | file LICENSE
 Encoding: UTF-8

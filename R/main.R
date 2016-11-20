@@ -5,6 +5,7 @@
 #' @include node.R
 #' @include make.R 
 #' @include flow.R
+#' importFrom("methods", "formalArgs")
 
 # so R doesn't complain about magrittr symbols
 utils::globalVariables(c("%>%", "."))

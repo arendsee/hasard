@@ -12,11 +12,36 @@
 #' but the last elements), and *op* prints the output type (the last element of
 #' the type vector). *nhtypes* counts the number of inputs. *type_str* converts
 #' from a character vector to a Haskell syntax function definition.
+#'
+#' *parse_type* converts whatever input it gets into a type (as a character
+#' vector). Legal input is 1) Haskell style type (e.g. 'a -> b') or 2) a
+#' character vector. Anything else will result in an error.
 #' 
 #' @param f any function
 #' @param value character string
+#' @param x type string
 #' @name type
 NULL
+
+#' @rdname type
+#' @export
+type_str <- function(f){
+  sprintf("(%s)", paste0(htype(f), collapse=" -> "))
+}
+
+#' @rdname type
+#' @export
+parse_type <- function(x){
+  if(length(x) == 1 && grepl('->', x)){
+    x <- unlist(strsplit(x, '\\s*->\\s*', perl=TRUE))
+    x <- gsub('\\(|\\)', '', x, perl=TRUE)
+    x <- ifelse(x == 'NA', NA, x)
+  }
+  if(!is.character(x)){
+    error("Input type must be a character vector")
+  }
+  x
+}
 
 #' @rdname type
 #' @export
@@ -39,7 +64,7 @@ op <- function(f) {
 #' @rdname type
 #' @export
 `htype<-` <- function(f, value){
-  attr(f, 'htype') <- value
+  attr(f, 'htype') <- parse_type(value)
   f <- add_class(f, 'typed')
   f
 }
@@ -84,10 +109,4 @@ nhargs <- function(f){
     n <- NULL
   }
   n
-}
-
-#' @rdname type
-#' @export
-type_str <- function(f){
-  sprintf("(%s)", paste0(htype(f), collapse=" -> "))
 }
