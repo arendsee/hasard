@@ -21,11 +21,11 @@ Suggests:
     covr
 VignetteBuilder: knitr
 Collate:
-    'access.R'
     'atom.R'
     'flow.R'
     'is.R'
     'make.R'
     'node.R'
+    'type.R'
     'util.R'
     'main.R'

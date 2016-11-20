@@ -1,7 +1,7 @@
 #' @include atom.R
 #' @include is.R
 #' @include util.R
-#' @include access.R 
+#' @include type.R 
 #' @include node.R
 #' @include make.R 
 #' @include flow.R
