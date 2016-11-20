@@ -55,8 +55,9 @@ but the last elements), and *op* prints the output type (the last element of
 the type vector). *nhtypes* counts the number of inputs. *type_str* converts
 from a character vector to a Haskell syntax function definition.
 
-*parse_type* converts whatever input it gets into a type (as a character
-vector). Legal input is 1) Haskell style type (e.g. 'a -> b') or 2) a
-character vector. Anything else will result in an error.
+*parse_type* attempts to extract a type (as a character vector) from
+whatever input it is given. Legal input is 1) Haskell style type (e.g. 'a ->
+b') or 2) a character vector or 3) an object with a non-NULL htype
+attribute. Anything else will result in an error.
 }
 

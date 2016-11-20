@@ -13,9 +13,10 @@
 #' the type vector). *nhtypes* counts the number of inputs. *type_str* converts
 #' from a character vector to a Haskell syntax function definition.
 #'
-#' *parse_type* converts whatever input it gets into a type (as a character
-#' vector). Legal input is 1) Haskell style type (e.g. 'a -> b') or 2) a
-#' character vector. Anything else will result in an error.
+#' *parse_type* attempts to extract a type (as a character vector) from
+#' whatever input it is given. Legal input is 1) Haskell style type (e.g. 'a ->
+#' b') or 2) a character vector or 3) an object with a non-NULL htype
+#' attribute. Anything else will result in an error.
 #' 
 #' @param f any function
 #' @param value character string
@@ -32,11 +33,17 @@ type_str <- function(f){
 #' @rdname type
 #' @export
 parse_type <- function(x){
+  # If the input is an object with a defined htype, use this type
+  if(!is.null(htype(x))){
+    x <- htype(x)
+  }
+  # If the type appears to be Haskell style, convert to vector
   if(length(x) == 1 && grepl('->', x)){
     x <- unlist(strsplit(x, '\\s*->\\s*', perl=TRUE))
     x <- gsub('\\(|\\)', '', x, perl=TRUE)
     x <- ifelse(x == 'NA', NA, x)
   }
+  # If the type is not a character vector, die with great angst
   if(!is.character(x)){
     error("Input type must be a character vector")
   }

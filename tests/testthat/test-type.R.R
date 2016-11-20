@@ -15,6 +15,7 @@ test_that(
     expect_equal(parse_type(c(NA, 'b')), c(NA, 'b'))
     expect_equal(parse_type('a -> b'), c('a', 'b'))
     expect_equal(parse_type('NA -> b'), c(NA, 'b'))
+    expect_equal(parse_type(foo), c('a', 'b', 'c'))
   }
 )
 
