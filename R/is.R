@@ -13,12 +13,6 @@ is.hnode <- function(x){
 
 #' @rdname is_function
 #' @export
-is.tuple <- function(x){
-  'tuple' %in% class(x)
-}
-
-#' @rdname is_function
-#' @export
 is.unary <- function(x){
   'unary' %in% class(x)
 }

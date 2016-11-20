@@ -11,24 +11,24 @@
 \alias{true}
 \title{Basic functions}
 \usage{
-blank()
-
-id(x, ...)
-
 true(...)
 
 false(...)
 
 nothing(...)
 
+blank()
+
+id(x, ...)
+
 execute(FUN, ...)
 
 nocache(op, ...)
 }
 \arguments{
-\item{x}{anything}
-
 \item{...}{anything}
+
+\item{x}{anything}
 
 \item{FUN}{any function}
 
@@ -39,7 +39,10 @@ nocache(op, ...)
   \item true - ignore all input and return TRUE
   \item false - ignore all input and return FALSE
   \item nothing - ignore all input and do nothing
+  \item blank - takes no arguments and returns nothing
+  \item id - returns first argument unchanged, ignores others
   \item execute - pass ... to FUN and return the results
+  \item cache - a cache function that does nothing
 }
 }
 
