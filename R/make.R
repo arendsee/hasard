@@ -1,15 +1,19 @@
 #' Create a new validator
 #' 
-#' @param f function with type: f :: vclass -> logical
-#' @param vclass the input class
-#' @return a unary, validator function
+#' @param type the type of the function
+#' @param f function that should be of the specified input type
+#' @return a validator function
 #' @export
-make_validator <- function(f, vclass){
-  fun <- function(x) {
-    f(x)
+make_validator <- function(type, f=true){
+  fun <- function(...) {
+    all( f(...) )
   }
-  fun <- add_class(fun, 'validator', 'unary')
-  htype(fun) <- c(vclass, 'Bool')
+  fun <- add_class(fun, 'validator', 'typed')
+  type <- parse_type(type)
+  htype(fun) <- type
+  if(rev(type)[1] != 'Bool'){
+    warn("Expected output type to be 'Bool' for a validator")
+  }
   fun
 }
 
@@ -33,10 +37,18 @@ make_cacher <- function(fchk, fdel, fput, fget){
   }
 }
 
-make_effector <- function(...) {
-  nothing
-}
-
-make_wrapper <- function(...) {
-  id
+#' Create a new effector function
+#' 
+#' @param type the type of the function
+#' @param f function that should be of the specified input type
+#' @return an effector function
+#' @export
+make_effector <- function(type, f) {
+  fun <- function(...) {
+    f(...)
+  }
+  fun <- add_class(fun, 'effector', 'typed')
+  type <- parse_type(type)
+  htype(fun) <- type
+  fun
 }
