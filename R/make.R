@@ -12,7 +12,7 @@ make_validator <- function(type, f=true){
   type <- parse_type(type)
   htype(fun) <- type
   if(rev(type)[1] != 'Bool'){
-    warn("Expected output type to be 'Bool' for a validator")
+    warning("Expected output type to be 'Bool' for a validator")
   }
   fun
 }

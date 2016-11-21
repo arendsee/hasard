@@ -3,9 +3,6 @@ context("util.R")
 test_that(
   "Warn and error work",
   {
-    expect_warning(warn('ladida'))
-    expect_error(error('ladida'))
-
     foo <- function(x, y, z=1){ 1 }
     bar <- function(x, y=1, z){ 2 }
 

@@ -69,8 +69,5 @@ test_that(
     expect_equal({h_pass(foo)   <- baz;   deparse(h_pass(foo))},   "baz")
     expect_equal({h_fail(foo)   <- baz;   deparse(h_fail(foo))},   "baz")
     expect_equal({h_effect(foo) <- baz;   deparse(h_effect(foo))}, "baz")
-    # TODO: add cacher, delete, and args
-
   }
 )
-

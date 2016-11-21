@@ -18,7 +18,7 @@ compose <- function(...){
     if(classcheck('hnode', f, g)){
       if(! are_composable(f, g) ){
         msg <- "Illegal composition of (%s -> %s) and (%s -> %s)"
-        error(msg, ip(f), op(f), ip(g), op(g))
+        stop(sprintf(msg, ip(f), op(f), ip(g), op(g)))
       }
       htype(fun) <- c(ip(f), op(g))
       h_inode(fun) <- h_inode(f)
@@ -37,7 +37,7 @@ compose <- function(...){
 #' @export
 combine <- function(...){
   if(!classcheck('unary', ...) || !classcheck('typed', ...)){
-    error("Can only combine unary, typed functions")
+    stop("Can only combine unary, typed functions")
   }
 
   itypes <- lapply(list(...), op)
@@ -47,7 +47,7 @@ combine <- function(...){
 
   fun <- function(...){
     if(length(list(...)) != N){
-      error("Expected list of length %d", N)
+      stop(sprintf("Expected list of length %d", N))
     }
   }
 

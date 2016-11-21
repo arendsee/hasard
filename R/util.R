@@ -1,20 +1,3 @@
-#' A wrapper for warning handling and reporting
-#' 
-#' @param ... arguments passed to sprintf
-#' @export
-warn <- function(...){
-  warning(sprintf(...))
-}
-
-#' A wrapper for error handling and reporting
-#' 
-#' @param ... arguments passed to sprintf
-#' @export
-error <- function(...){
-  msg <- force(sprintf(...))
-  stop(msg)
-}
-
 #' Collapse all arguments into unary closure
 #'
 #' @param f arbitrary function
@@ -59,7 +42,7 @@ runall <- function(f, ...){
   if(all(unlist(lapply(f, is.function)))){
     lapply(f, execute, ...)
   } else {
-    error("f must be a function or list of functions")
+    stop("f must be a function or list of functions")
   }
 }
 
@@ -71,7 +54,7 @@ runall <- function(f, ...){
 #' @export
 classcheck <- function(CLASS, ...){
   if(!is.character(CLASS)){
-    error("CLASS must be a character vector")
+    stop("CLASS must be a character vector")
   }
   all(unlist(lapply(list(...), function(x) CLASS %in% class(x))))
 }

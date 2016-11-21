@@ -45,7 +45,7 @@ parse_type <- function(x){
   }
   # If the type is not a character vector, die with great angst
   if(!is.character(x)){
-    error("Input type must be a character vector")
+    stop("Input type must be a character vector")
   }
   x
 }
@@ -81,7 +81,7 @@ op <- function(f) {
 `ip<-` <- function(f, value){
   if(is.null(htype(f))){
     htype(f) <- c('*', '*')
-    warn("Initializing output to '*'")
+    warning("Initializing output to '*'")
   }
   htype(f)[1] <- value
   f
@@ -91,7 +91,7 @@ op <- function(f) {
 #' @export
 `op<-` <- function(f, value){
   if(is.null(htype(f))){
-    warn("f does not have a type, initializing input to '*'")
+    warning("f does not have a type, initializing input to '*'")
     htype(f) <- c('*', '*')
   }
   htype(f)[length(htype(f))] <- value
@@ -106,13 +106,13 @@ nhargs <- function(f){
   } else if(is.character(f)) {
     types <- f
   } else {
-    error("Cannot count arguments of class '%s'", paste0(class(f), collpase="', '"))
+    stop(sprintf("Cannot count arguments of class '%s'", paste0(class(f), collpase="', '")))
   }
   if(!is.null(types)){
     types <- rev(types)[-1]
     n <- length(types[!is.na(types)])
   } else {
-    warn("This function is not typed, returning NULL")
+    warning("This function is not typed, returning NULL")
     n <- NULL
   }
   n

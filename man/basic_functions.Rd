@@ -4,11 +4,13 @@
 \alias{basic_functions}
 \alias{blank}
 \alias{execute}
+\alias{fail}
 \alias{false}
 \alias{id}
 \alias{nocache}
 \alias{nothing}
 \alias{true}
+\alias{warn}
 \title{Basic functions}
 \usage{
 true(...)
@@ -16,6 +18,10 @@ true(...)
 false(...)
 
 nothing(...)
+
+fail(...)
+
+warn(...)
 
 blank()
 
@@ -39,6 +45,8 @@ nocache(op, ...)
   \item true - ignore all input and return TRUE
   \item false - ignore all input and return FALSE
   \item nothing - ignore all input and do nothing
+  \item fail - throws an exception for any input
+  \item warn - calls a warning for any input
   \item blank - takes no arguments and returns nothing
   \item id - returns first argument unchanged, ignores others
   \item execute - pass ... to FUN and return the results

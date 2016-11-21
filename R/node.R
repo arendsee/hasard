@@ -199,14 +199,14 @@ h_delete <- function(h) { formals(h)$.delete }
   #   k <- substitute(value)
   # }
   # if(!is.function(v)){
-  #   error("Expected function, got '%s'", paste0(class(v), collapse="', '"))
+  #   stop(sprintf("Expected function, got '%s'", paste0(class(v), collapse="', '")))
   # }
   # if(npositional(v) != nhargs(h)){
-  #   warn(
+  #   warning(sprintf(
   #     "found %d positional arguments in value, but this node requires a function of type %s",
   #     npositional(v),
   #     type_str(h)
-  #   )
+  #   ))
   # }
   # a <- attributes(h)
   # formals(h)$.fun <- k
@@ -225,15 +225,15 @@ h_delete <- function(h) { formals(h)$.delete }
   #   value <- list(value)
   # }
   # if(!all(unlist(lapply(value, is.hnode)))){
-  #   warn("this function is not of class 'hnode'")
+  #   warning("this function is not of class 'hnode'")
   # }
   # if(length(value) != nhargs(h)){
-  #   warn(
+  #   warning(sprintf(
   #     "found %d arguments in .inode, expected %d for function of type %s",
   #     length(value),
   #     nhargs(h),
   #     type_str(h)
-  #   )
+  #   ))
   # }
   a <- attributes(h)
   formals(h)$.inode <- substitute(value)
