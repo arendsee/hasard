@@ -30,11 +30,6 @@ hsource_ <- function(
 
   fun <- function(.fun, .effect, .delete, .cacher, .args){
 
-    .fun    = eval(.fun)
-    .effect = eval(.effect)
-    .cacher = eval(.cacher)
-    .args   = eval(.args)
-
     if(.delete){ .cacher('del') }
     if(!.cacher('chk')){
       b <- do.call(.fun, .args)
@@ -71,15 +66,6 @@ hpipe_ <- function(
 ){
 
   fun <- function(.fun, .inode, .val, .pass, .fail, .effect, .delete, .cacher, .args){
-
-    .fun    <- eval(.fun)
-    .inode  <- eval(.inode)
-    .val    <- eval(.val)
-    .pass   <- eval(.pass)
-    .fail   <- eval(.fail)
-    .effect <- eval(.effect)
-    .cacher <- eval(.cacher)
-    .args   <- eval(.args)
 
     if(.delete){ .cacher('del') }
 
@@ -131,6 +117,7 @@ hnode <- function(type, ...){
   } else {
     fun <- hpipe_(type, ...)
   }
+  parent.env(environment(fun)) <- parent.frame()
   fun
 }
 

@@ -17,6 +17,14 @@ test_that(
     expect_null(nothing(TRUE))
     expect_null(nothing(1,1,NULL))
 
+    expect_error(fail())
+    expect_error(fail(1))
+    expect_error(fail(1,1))
+
+    expect_warning(warn())
+    expect_warning(warn(1))
+    expect_warning(warn(1,1))
+
     expect_null(blank())
     expect_error(blank(1))
 
