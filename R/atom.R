@@ -48,7 +48,7 @@ id <- function(x, ...){
 #' @rdname basic_functions
 #' @export
 execute <- function(FUN, ...) {
-  if(!classcheck('function', FUN)){
+  if(!is.function(FUN)){
     error("the first argument in `execute` must be a function")
   }
   FUN(...)

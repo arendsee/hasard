@@ -4,6 +4,7 @@
 #'
 #' \itemize{
 #'   \item type function type
+#'   \item f function
 #'   \item inode input nodes
 #'   \item val (a -> Bool) - determines in input is correct
 #'   \item pass function called if val returns TRUE
@@ -28,6 +29,12 @@ hsource_ <- function(
 ){
 
   fun <- function(.fun, .effect, .delete, .cacher, .args){
+
+    .fun    = eval(.fun)
+    .effect = eval(.effect)
+    .cacher = eval(.cacher)
+    .args   = eval(.args)
+
     if(.delete){ .cacher('del') }
     if(!.cacher('chk')){
       b <- do.call(.fun, .args)
@@ -64,10 +71,24 @@ hpipe_ <- function(
 ){
 
   fun <- function(.fun, .inode, .val, .pass, .fail, .effect, .delete, .cacher, .args){
+
+    .fun    <- eval(.fun)
+    .inode  <- eval(.inode)
+    .val    <- eval(.val)
+    .pass   <- eval(.pass)
+    .fail   <- eval(.fail)
+    .effect <- eval(.effect)
+    .cacher <- eval(.cacher)
+    .args   <- eval(.args)
+
     if(.delete){ .cacher('del') }
 
     if(.cacher('chk')){
       return(.cacher('get'))
+    }
+
+    if(class(.inode)[1] != 'list'){
+      .inode <- list(.inode)
     }
 
     a <- lapply(.inode, execute)

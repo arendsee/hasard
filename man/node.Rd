@@ -78,6 +78,7 @@ Build function
 
 \itemize{
   \item type function type
+  \item f function
   \item inode input nodes
   \item val (a -> Bool) - determines in input is correct
   \item pass function called if val returns TRUE
