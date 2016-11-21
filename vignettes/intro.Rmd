@@ -216,10 +216,11 @@ be easily created with the `hnode` command.
 Here is the minimal pied example
 
 ```{r}
-# h_load_data <- hnode(f_load_data)
-# h_normalize <- hnode(f_normalize, h_load_data)
-# h_dist      <- hnode(f_dist,      h_normalize)
-# h_hclust    <- hnode(f_hclust,    h_dist)
+h_load_data <- hnode('NA -> a', f=f_load_data)
+h_normalize <- hnode('a -> b',  f=f_normalize, inode=h_load_data)
+h_dist      <- hnode('b -> c',  f=f_dist,      inode=h_normalize)
+h_hclust    <- hnode('c -> d',  f=f_hclust,    inode=h_dist)
+h_hclust()
 ```
 
 `hnode` returns a function that should normally be called with no arguments.
@@ -231,130 +232,43 @@ validators. Rather than writing validation code into the pure functions, I will
 write them as independent functions.
 
 ```{r}
-# v_iris <- function(x) {
-#   expected_names = c("Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width")
-#   is.data.frame(x)                           &&
-#   length(expected_names) == length(names(x)) &&
-#   all(names(x) == expected_names)            &&
-#   all(unlist(lapply(x, is.numeric)))
-# }
-#
-# v_normed_df <- function(x, ...) {
-#   is.data.frame(x)                                        &&
-#   all(unlist(lapply(x, is.numeric)))                      &&
-#   all(unlist(lapply(x, function(x) abs(mean(x)) < 1e-5))) &&
-#   all(unlist(lapply(x, function(x) abs((sd(x) - 1)) < 1e-5)))
-# }
-#
-# # Build a hierarchical cluster
-# v_dist <- function(x, ...) {
-#   'dist' %in% class(x)
-# }
-#
-# h_val(h$normalize) <- v_iris
-# h_val(h$dist)      <- v_normed_df
-# h_val(h$hclust)    <- v_dist
-# h$hclust()
+v_iris <- function(x) {
+  expected_names = c("Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width")
+  is.data.frame(x)                           &&
+  length(expected_names) == length(names(x)) &&
+  all(names(x) == expected_names)            &&
+  all(unlist(lapply(x, is.numeric)))
+}
+
+v_normed_df <- function(x, ...) {
+  is.data.frame(x)                                        &&
+  all(unlist(lapply(x, is.numeric)))                      &&
+  all(unlist(lapply(x, function(x) abs(mean(x)) < 1e-5))) &&
+  all(unlist(lapply(x, function(x) abs((sd(x) - 1)) < 1e-5)))
+}
+
+# Build a hierarchical cluster
+v_dist <- function(x, ...) {
+  'dist' %in% class(x)
+}
+
+h_val(h_normalize) <- v_iris
+h_val(h_dist)      <- v_normed_df
+h_val(h_hclust)    <- v_dist
+h_hclust()
 ```
+
 Now lets add output summary functions to each
 
 ```{r}
-# h_effect(h$load_data) <- print
-# h_effect(h$normalize) <- print
-# h_effect(h$dist)      <- print
-# h_effect(h$hclust)    <- summary
-# h$hclust()
-```
-
-```{r}
-#
-# #' @rdname access
-# #' @export
-# inode <- function(f){
-#   formals(f)$inode
-# }
-#
-# #' @rdname access
-# #' @export
-# `inode<-` <- function(f, value){
-#   formals(f)$inode <- value
-#   f
-# }
-#
-# f_load_data <- function() {
-#   data(iris, envir=environment())
-#   iris$Species <- NULL
-#   iris
-# }
-# f_normalize <- function(x) {
-#   as.data.frame(lapply(x, function(x) (x - mean(x)) / sd(x)))
-# }
-# f_dist <- function(x, ...) {
-#   dist(x, ...)
-# }
-# f_hclust <- function(x, ...) {
-#   hclust(x, ...)
-# }
-#
-# h_load_data <- hnode(f_load_data)
-# h_normalize <- hnode(f_normalize, h_load_data)
-# h_dist      <- hnode(f_dist,      h_normalize)
-# h_hclust    <- hnode(f_hclust,    h_dist)
-#
-# h_effect(h_load_data) <- compose(summary, print)
-# h_effect(h_normalize) <- compose(summary, print)
-# h_effect(h_dist)      <- compose(summary, print)
-# h_effect(h_hclust)    <- compose(summary, print)
-#
-# h_hclust()
-#
+h_effect(h_load_data) <- compose(summary, print)
+h_effect(h_normalize) <- compose(summary, print)
+h_effect(h_dist)      <- compose(summary, print)
+h_effect(h_hclust)    <- compose(summary, print)
 ```
 
 Now we can run this
 
 ```{r}
-# h$hclust()
-```
-
-
-```{r}
-# psum_template <- function(file){
-#   function(a, b){
-#     sink(file)
-#     cat("----------------------------------------------\n")
-#     for(i in 1:length(a)){
-#       cat(sprintf("--- input %d\n", i))
-#       print(summary(a[[i]]))
-#     }
-#     cat("--- output\n")
-#     print(summary(b))
-#     cat("----------------------------------------------\n")
-#     sink()
-#   }
-# }
-#
-# plot_template <- function(file){
-#   function(a, b){
-#     pdf(file)
-#     plot(b)
-#     dev.off()
-#   }
-# }
-#
-# h$load_data <- hnode(f_load_data)
-#
-# h$normalize <- hnode(
-#   f_normalize,
-#   inode  = list(h$load_data),
-#   val    = v_iris,
-#   effect = list(psum_template('log-norm.txt'), plot_template('log-norm.pdf'))
-# )
-#
-# h$dist <- hnode(
-#   f_dist,
-#   args   = list(method='euclidean'),
-#   inode  = list(h$normalize),
-#   val    = v_normalized_df,
-#   effect = psum_template('log-dist.txt')
-# )
+h_hclust()
 ```
