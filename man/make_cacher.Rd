@@ -4,7 +4,8 @@
 \alias{make_cacher}
 \title{Create a caching function}
 \usage{
-make_cacher(fchk, fdel, fput, fget)
+make_cacher(fchk = false, fdel = nothing, fput = nothing,
+  fget = nothing)
 }
 \arguments{
 \item{fchk}{determines if a cached value exists}

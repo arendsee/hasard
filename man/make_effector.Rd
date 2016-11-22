@@ -4,7 +4,7 @@
 \alias{make_effector}
 \title{Create a new effector function}
 \usage{
-make_effector(type, f)
+make_effector(type, f = nothing)
 }
 \arguments{
 \item{type}{the type of the function}
