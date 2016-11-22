@@ -20,6 +20,7 @@ test_that(
 
     expect_null(compose())
     expect_true(is.function(compose(f)))
+
     expect_equal(htype(compose(f,g)), c(NA, 'b'))
     expect_true(all(is.na(htype(compose(f,g,h)))))
 

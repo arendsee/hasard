@@ -25,6 +25,7 @@ calling `foo()` is exactly equivalent to calling `h(g(f))()` in foo's
 parental environment.
 }
 \examples{
+library(magrittr)
 compose(runif, mean, abs, log)
 }
 

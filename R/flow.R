@@ -42,41 +42,43 @@ are_composable <- function(f, g){
 #' @param ... two or more functions
 #' @return A function that is a composition of the input functions
 #' @examples
+#' library(magrittr)
 #' compose(runif, mean, abs, log)
 #' @export
+
 compose <- function(...){
-  fnames <- sapply(match.call(expand.dots=TRUE)[-1], deparse)
-  funcs <- lapply(fnames, function(s) eval(parse(text=s)))
+  
+  funcs <- list(...)
 
-  if(length(funcs) == 0){
-    return(NULL)
-  }
+  N <- length(funcs)
 
-  if(length(funcs) == 1){
-    return(funcs[[1]])
-  }
-
-  for(i in 1:(length(funcs)-1)){
-    if(!are_composable(funcs[[i]], funcs[[i+1]])){
-      stop(sprintf("Arguments %d and %d are not composable", i, i+1))
-    }
-  }
+  if(N == 0) return(NULL)
 
   inner <- funcs[[1]]
   outer <- rev(funcs)[[1]]
 
-  fpass <- formalArgs(inner) %>% paste0(collapse=", ")
+  if(N == 1) return(inner)
 
-  fun <- blank
-  formals(fun) <- formals(inner)
-
-  compose_ <- function(a, b){
-    sprintf('%s(%s)', a, b) 
+  for(i in 2:N){
+    if(!are_composable(funcs[[i-1]], funcs[[i]])){
+      stop(sprintf("Arguments %d and %d are not composable", i-1, i))
+    }
   }
 
-  body(fun) <- Reduce(f=compose_, x=rev(fnames), init=fpass, right=TRUE) %>%
-    {parse(text=sprintf("{%s}", .))}
+  # names of all functions, innermost to outermost
+  fun_names  <- sapply(match.call(expand.dots=TRUE)[-1], deparse)
+  # paramters for innermost function as a string
+  inner_args <- methods::formalArgs(inner) %>% paste0(collapse=', ')
+  # function for recursive wrapping of calls
+  compose_   <- function(f, g){ sprintf("%s(%s)", g, f) }
+  # functional body as an expression
+  body_expr <- Reduce(fun_names, f=compose_, init=inner_args) %>%
+    sprintf(fmt="{%s}") %>%
+    {parse(text=.)}
 
+  fun              <- blank
+  body(fun)        <- body_expr
+  formals(fun)     <- formals(inner)
   environment(fun) <- parent.frame()
 
   if(is.typed(inner) && is.typed(outer)){
