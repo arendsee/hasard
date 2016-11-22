@@ -13,6 +13,18 @@ compose(...)
 A function that is a composition of the input functions
 }
 \description{
-Make composition of functions
+Input functions should be ordered from innermost to outtermost. All
+arguments are passed to the innermost function, whose formal arguments are
+transferred exactly to the composed function.
+}
+\details{
+The composed function is a member of the environment in which `compose` was
+called. The composition does not copy the constituent functions, but rather
+searches for them in the parent frame. So, given `foo <- compose(f,g,h)`
+calling `foo()` is exactly equivalent to calling `h(g(f))()` in foo's
+parental environment.
+}
+\examples{
+compose(runif, mean, abs, log)
 }
 

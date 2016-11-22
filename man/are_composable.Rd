@@ -13,6 +13,9 @@ are_composable(f, g)
 logical
 }
 \description{
-Check if two functions are composable
+Inputs are considered to be composable if they are functions and are either
+untyped or have composable types. Typed functions (f,g) are composable if 1)
+f's output is not NA (i.e. is not a sink), 2) g's input is not NA (i.e. is
+not a source), and 3) f's output equals g's input.
 }
 

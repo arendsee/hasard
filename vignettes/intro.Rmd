@@ -216,6 +216,15 @@ be easily created with the `hnode` command.
 Here is the minimal pied example
 
 ```{r}
+h_load_data <- hnode('NA -> a')
+h_normalize <- hnode('a -> b')
+h_dist      <- hnode('b -> c')
+h_hclust    <- hnode('c -> d')
+h_hclust()
+```
+
+
+```{r}
 h_load_data <- hnode('NA -> a', f=f_load_data)
 h_normalize <- hnode('a -> b',  f=f_normalize, inode=h_load_data)
 h_dist      <- hnode('b -> c',  f=f_dist,      inode=h_normalize)
@@ -270,5 +279,48 @@ h_effect(h_hclust)    <- compose(summary, print)
 Now we can run this
 
 ```{r}
+h_hclust()
+```
+
+
+
+# Appendix
+
+Full executable code
+
+```{r}
+library(pied)
+
+# Load a builtin R dataset and return
+f_load_data <- function() {
+  data(iris, envir=environment()) 
+  iris$Species <- NULL
+  iris
+}
+
+# Normalize the numeric columns
+f_normalize <- function(x) {
+  as.data.frame(lapply(x, function(x) (x - mean(x)) / sd(x))) 
+}
+
+# Build a distance matrix
+f_dist <- function(x, ...) {
+  dist(x, ...)
+}
+
+# Build a hierarchical cluster
+f_hclust <- function(x, ...) {
+  hclust(x, ...)
+}
+
+h_load_data <- hnode('NA -> a')
+h_normalize <- hnode('a -> b')
+h_dist      <- hnode('b -> c')
+h_hclust    <- hnode('c -> d')
+
+h_load_data <- hnode('NA -> a', f=f_load_data)
+h_normalize <- hnode('a -> b',  f=f_normalize, inode=h_load_data)
+h_dist      <- hnode('b -> c',  f=f_dist,      inode=h_normalize)
+h_hclust    <- hnode('c -> d',  f=f_hclust,    inode=h_dist)
 h_hclust()
 ```
