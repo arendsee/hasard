@@ -40,10 +40,11 @@ test_that(
     expect_null(htype(baz))
     expect_null(ip(baz))
     expect_null(op(baz))
-    expect_warning(nhargs(baz))
 
+    expect_warning(nhargs(baz), NULL)
     expect_equal(nhargs(c('a', 'b', 'c')), 2)
     expect_equal(nhargs(c(NA, 'c')), 0)
+    expect_equal(nhargs(bar), 0)
     expect_error(nhargs(1))
   }
 )

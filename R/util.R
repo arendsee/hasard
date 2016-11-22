@@ -39,7 +39,7 @@ runall <- function(f, ...){
   if(!all(class(f) == 'list')){
     f <- list(f)
   }
-  if(all(unlist(lapply(f, is.function)))){
+  if(all(sapply(f, is.function))){
     lapply(f, execute, ...)
   } else {
     stop("f must be a function or list of functions")

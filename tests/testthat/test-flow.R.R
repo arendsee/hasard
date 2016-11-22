@@ -9,6 +9,8 @@ test_that(
 
     expect_equal(compose(f,g,h)(), 'f g h')
 
+    expect_error(compose(1,2))
+
     htype(f) <- 'NA -> a'
     htype(g) <- 'a  -> b'
     htype(h) <- 'b  -> NA'

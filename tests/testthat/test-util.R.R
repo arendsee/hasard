@@ -26,10 +26,15 @@ test_that(
 
     # no worries if the class is not the first
     a = 1
+    expect_error(classcheck(42, a))
     class(a) <- c('a', 'b', 'c')
     expect_true(classcheck('c', a))
 
     a <- add_class(a, 'd', 'e')
     expect_true(classcheck('e', a))
+
+    expect_true(classcheck('olga', add_class(a, 'olga')))
+    # each class must appear only once
+    expect_true(sum('e' %in% class(add_class(a, 'e', 'e'))) == 1)
   }
 )
