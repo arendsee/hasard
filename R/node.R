@@ -14,10 +14,15 @@
 #' }
 #'
 #' @param type a functional type ala Haskell
-#' @param h hnode function
-#' @param value right hand value for assignment
 #' @param ... see Arguments
 #' @name node
+NULL
+
+#' Get and set elements of an hnode
+#'
+#' @param h a function of the 'hnode' class
+#' @param value right hand value for assignment
+#' @name hnode_setters
 NULL
 
 hsource_ <- function(
@@ -28,35 +33,71 @@ hsource_ <- function(
   args   = list()
 ){
 
-  fun <- function(.fun, .effect, .delete, .cacher, .args){
-
-    if(.delete){ .cacher('del') }
-    if(!.cacher('chk')){
-      b <- do.call(.fun, .args)
-      runall(.effect, b)
-      .cacher('put', b)
-    } else {
-      b <- .cacher('get')
+  fun <- function(){}
+  body(fun) <- quote( 
+    {
+      if(.delete){ .cacher('del') }
+      if(!.cacher('chk')){
+        b <- do.call(.fun, .args)
+        runall(.effect, b)
+        .cacher('put', b)
+      } else {
+        b <- .cacher('get')
+      }
+      b
     }
-    b
-  }
-
-  formals(fun)$.fun    = substitute(f)
-  formals(fun)$.effect = substitute(effect)
-  formals(fun)$.cacher = substitute(cacher)
-  formals(fun)$.delete = FALSE
-  formals(fun)$.args   = substitute(args)
+  )
 
   htype(fun) <- type
-  fun <- add_class(fun, 'hnode', 'unary', 'source')
+  fun <- add_class(fun, 'hnode', 'source')
+
+  h_fun(fun)    <- substitute(f)
+  h_effect(fun) <- substitute(effect)
+  h_cacher(fun) <- substitute(cacher)
+  h_delete(fun) <- FALSE
+  h_args(fun)   <- substitute(args)
 
   fun
 }
 
+default_fun <- function(type){
+  N <- nhargs(type)
+  fun <- nothing
+  if(N == 0){
+    formals(fun) <- c()
+  } else {
+    formals(fun) <-
+      c(letters[1:N]) %>%
+      {parse(text=sprintf('alist(%s =)', paste(., collapse="= ,")))} %>%
+      eval
+  }
+  htype(fun) <- type
+  fun
+}
+
+default_inode <- function(type){
+  N <- nhargs(type)
+  if(N == 0){
+    inode <- nothing
+    formals(inode) <- c()
+  } else if(N == 1) {
+    inode <- nothing
+    formals(inode) <- alist(x=)
+  } else {
+    inode <- list()
+    for(i in 1:N){
+      fun <- nothing
+      formals(fun) <- eval(parse(text=sprintf('alist(%s =)', letters[i])))
+      inode[[1]] <- fun
+    }
+  }
+  inode
+}
+
 hpipe_ <- function(
   type,
-  f       = nothing,
-  inode   = nothing,
+  f       = default_fun(type),
+  inode   = default_inode(type),
   val     = true,
   pass    = execute,
   fail    = nothing,
@@ -65,45 +106,61 @@ hpipe_ <- function(
   args    = list()
 ){
 
-  fun <- function(.fun, .inode, .val, .pass, .fail, .effect, .delete, .cacher, .args){
+  fun <- function(){}
+  body(fun) <- quote(
+    {
+      if(.delete){ .cacher('del') }
 
-    if(.delete){ .cacher('del') }
+      if(.cacher('chk')){
+        return(.cacher('get'))
+      }
 
-    if(.cacher('chk')){
-      return(.cacher('get'))
+      if(class(.inode)[1] != 'list'){
+        .inode <- list(.inode)
+      }
+
+      a <- lapply(.inode, execute)
+
+      funlist <- append(.fun, append(a, args))
+
+      if(do.call(.val, a)){
+        b <- do.call(.pass, funlist)
+      } else {
+        b <- do.call(.fail, funlist)
+      }
+
+      runall(.effect, b, h_input=a)
+      .cacher('put', b)
+      b
     }
-
-    if(class(.inode)[1] != 'list'){
-      .inode <- list(.inode)
-    }
-
-    a <- lapply(.inode, execute)
-
-    funlist <- append(.fun, append(a, args))
-
-    if(do.call(.val, a)){
-      b <- do.call(.pass, funlist)
-    } else {
-      b <- do.call(.fail, funlist)
-    }
-
-    runall(.effect, b, h_input=a)
-    .cacher('put', b)
-    b
-  }
-
-  formals(fun)$.fun    <- substitute(f)
-  formals(fun)$.inode  <- substitute(inode)
-  formals(fun)$.val    <- substitute(val)
-  formals(fun)$.pass   <- substitute(pass)
-  formals(fun)$.fail   <- substitute(fail)
-  formals(fun)$.effect <- substitute(effect)
-  formals(fun)$.cacher <- substitute(cacher)
-  formals(fun)$.args   <- substitute(args)
-  formals(fun)$.delete <- FALSE
+  )
 
   htype(fun) <- type
   fun <- add_class(fun, 'hnode')
+
+  if(missing(f)){
+    do_nothing <- force(f)
+    h_fun(fun) <- do_nothing
+  } else {
+    h_fun(fun) <- substitute(f)
+  }
+
+  if(missing(inode)){
+    input_nothing <- force(inode)
+    h_inode(fun) <- input_nothing
+  } else {
+    h_inode(fun) <- substitute(inode)
+  }
+
+  # h_fun(fun)    <- substitute(f)
+  # h_inode(fun)  <- substitute(inode)
+  h_val(fun)    <- substitute(val)
+  h_pass(fun)   <- substitute(pass)
+  h_fail(fun)   <- substitute(fail)
+  h_effect(fun) <- substitute(effect)
+  h_cacher(fun) <- substitute(cacher)
+  h_args(fun)   <- substitute(args)
+  h_delete(fun) <- FALSE
 
   fun
 }
@@ -121,172 +178,143 @@ hnode <- function(type, ...){
   fun
 }
 
-#' @rdname node
+#' @rdname hnode_setters
 #' @export
 h_fun <- function(h) { formals(h)$.fun }
 
-#' @rdname node
+#' @rdname hnode_setters
 #' @export
 h_inode <- function(h) { formals(h)$.inode }
 
-#' @rdname node
+#' @rdname hnode_setters
 #' @export
 h_val <- function(h) { formals(h)$.val }
 
-#' @rdname node
+#' @rdname hnode_setters
 #' @export
 h_pass <- function(h) { formals(h)$.pass }
 
-#' @rdname node
+#' @rdname hnode_setters
 #' @export
 h_fail <- function(h) { formals(h)$.fail }
 
-#' @rdname node
+#' @rdname hnode_setters
 #' @export
 h_effect <- function(h) { formals(h)$.effect }
 
-#' @rdname node
+#' @rdname hnode_setters
 #' @export
 h_cacher <- function(h) { formals(h)$.cacher }
 
-#' @rdname node
+#' @rdname hnode_setters
 #' @export
 h_args <- function(h) { formals(h)$.args }
 
-#' @rdname node
+#' @rdname hnode_setters
 #' @export
 h_delete <- function(h) { formals(h)$.delete }
 
-# set_ <- function(field, check=true) {
-#   function(h, value){
-#     if(is.name(value)){
-#       v <- eval(value)
-#       k <- value
-#     } else {
-#       v <- value
-#       k <- substitute(value)
-#     }
-#     if(check(h, v)){
-#       a <- attributes(h)
-#       formals(h)[[field]] <- k
-#       attributes(h) <- a
-#     }
-#     h
-#   }
-# }
+set_ <- function(field, check=true) {
+  fun <- function(h, value){}
+  body(fun) <- substitute(
+    {
+      if(is.name(value)){
+        k <- value
+        v <- dynGet(deparse(value), inherits=TRUE)
+      } else if(is.call(value)){
+        k <- value
+        v <- eval(value)
+      } else {
+        k <- substitute(value)
+        v <- value
+      }
+      if(check(h, v)){
+        a <- attributes(h)
+        formals(h)$field <- k
+        attributes(h) <- a
+      } else {
+        stop("Assignment to '%s' failed", deparse(field))
+      }
+      h
+    }
+  )
+  environment(fun) <- parent.frame()
+  fun
+}
 
-#' @rdname node
-#' @export
-`h_fun<-` <- function(h, value){
-  # if(is.name(value)){
-  #   v <- eval(value)
-  #   k <- value
-  # } else {
-  #   v <- value
-  #   k <- substitute(value)
+check_fun_ <- function(h, value){
+  success <- TRUE
+  if(!is.function(value)){
+    warning(sprintf("Expected function, got '%s'", paste0(class(value), collapse="', '")))
+    success <- FALSE
+  }
+  if(npositional(value) != nhargs(h)){
+    warning(sprintf(
+      "found %d positional arguments in value, but this node requires a function of type %s",
+      npositional(value),
+      type_str(h)
+    ))
+    success <- FALSE
+  }
+  success
+}
+
+check_inode_ <- function(h, value){
+  success <- TRUE
+  if(class(value)[1] != 'list'){
+    value <- list(value)
+  }
+  # if(!all(sapply(value, is.hnode))){
+  #   warning("input node is not of class 'hnode', this may be OK")
   # }
-  # if(!is.function(v)){
-  #   stop(sprintf("Expected function, got '%s'", paste0(class(v), collapse="', '")))
-  # }
-  # if(npositional(v) != nhargs(h)){
-  #   warning(sprintf(
-  #     "found %d positional arguments in value, but this node requires a function of type %s",
-  #     npositional(v),
-  #     type_str(h)
-  #   ))
-  # }
-  # a <- attributes(h)
-  # formals(h)$.fun <- k
-  # attributes(h) <- a
-  # h
-  a <- attributes(h)
-  formals(h)$.fun <- substitute(value)
-  attributes(h) <- a
-  h
+  if(length(value) != nhargs(h)){
+    warning(sprintf(
+      "found %d arguments in .inode, expected %d for function of type %s",
+      length(value),
+      nhargs(h),
+      type_str(h)
+    ))
+    success <- FALSE
+  }
+  success
 }
 
-#' @rdname node
 #' @export
-`h_inode<-` <- function(h, value) {
-  # if(all(class(value) != 'list')){
-  #   value <- list(value)
-  # }
-  # if(!all(unlist(lapply(value, is.hnode)))){
-  #   warning("this function is not of class 'hnode'")
-  # }
-  # if(length(value) != nhargs(h)){
-  #   warning(sprintf(
-  #     "found %d arguments in .inode, expected %d for function of type %s",
-  #     length(value),
-  #     nhargs(h),
-  #     type_str(h)
-  #   ))
-  # }
-  a <- attributes(h)
-  formals(h)$.inode <- substitute(value)
-  attributes(h) <- a
-  h
-}
+#' @rdname hnode_setters
+`h_fun<-` <- set_(.fun, check=check_fun_)
 
-#' @rdname node
 #' @export
-`h_val<-` <- function(h, value) {
-  a <- attributes(h)
-  formals(h)$.val <- substitute(value)
-  attributes(h) <- a
-  h
-}
+#' @rdname hnode_setters
+`h_inode<-` <- set_(.inode, check=check_inode_)
 
-#' @rdname node
 #' @export
-`h_pass<-` <- function(h, value) {
-  a <- attributes(h)
-  formals(h)$.pass <- substitute(value)
-  attributes(h) <- a
-  h
-}
+#' @rdname hnode_setters
+`h_val<-` <- set_(.val)
 
-#' @rdname node
 #' @export
-`h_fail<-` <- function(h, value) {
-  a <- attributes(h)
-  formals(h)$.fail <- substitute(value)
-  attributes(h) <- a
-  h
-}
+#' @rdname hnode_setters
+`h_pass<-` <- set_(.pass)
 
-#' @rdname node
 #' @export
-`h_effect<-` <- function(h, value) {
-  a <- attributes(h)
-  formals(h)$.effect <- substitute(value)
-  attributes(h) <- a
-  h
-}
+#' @rdname hnode_setters
+`h_fail<-` <- set_(.fail)
 
-#' @rdname node
 #' @export
-`h_cacher<-` <- function(h, value) {
-  a <- attributes(h)
-  formals(h)$.cacher <- substitute(value)
-  attributes(h) <- a
-  h
-}
+#' @rdname hnode_setters
+`h_effect<-` <- set_(.effect)
 
-#' @rdname node
 #' @export
-`h_args<-` <- function(h, value) {
-  a <- attributes(h)
-  formals(h)$.args <- substitute(value)
-  attributes(h) <- a
-  h
-}
+#' @rdname hnode_setters
+`h_cacher<-` <- set_(.cacher)
 
-#' @rdname node
 #' @export
-`h_delete<-` <- function(h, value) {
-  a <- attributes(h)
-  formals(h)$.delete <- as.logical(value)
-  attributes(h) <- a
-  h
-}
+#' @rdname hnode_setters
+`h_fail<-` <- set_(.fail)
+
+#' @export
+#' @rdname hnode_setters
+`h_args<-` <- set_(.args)
+
+#' @export
+#' @rdname hnode_setters
+`h_delete<-` <- set_(.delete)

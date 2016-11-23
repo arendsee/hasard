@@ -33,8 +33,8 @@ test_that(
     foo <- hnode('a -> b')
     expect_equal(htype(foo), c('a', 'b'))
     
-    expect_equal(deparse(h_fun(foo)),    "nothing")
-    expect_equal(deparse(h_inode(foo)),  "nothing")
+    expect_equal(deparse(h_fun(foo)),    "do_nothing")
+    expect_equal(deparse(h_inode(foo)),  "input_nothing")
     expect_equal(deparse(h_val(foo)),    "true")
     expect_equal(deparse(h_pass(foo)),   "execute")
     expect_equal(deparse(h_fail(foo)),   "nothing")
@@ -57,10 +57,13 @@ test_that(
 test_that(
   "Test hnode assignments work",
   {
-    foo <- hnode('a -> b')
-
+    one <- function(){ 1 }
     bar <- function(x){}
-    baz <- function(){ 1 }
+
+    foo <- hnode('a -> b')
+    # baz <- hnode('NA -> a', f=one)
+    baz <- hnode('NA -> a')
+    h_fun(baz) <- one
 
     expect_equal({h_fun(foo)    <- bar;   deparse(h_fun(foo))},    "bar")
     expect_equal({h_inode(foo)  <- baz;   deparse(h_inode(foo))},  "baz")
@@ -76,8 +79,10 @@ test_that(
   {
     one <- function(){1}
     dbl <- function(x){2*x}
+
     foo <- hnode('NA -> a', f=one)
     bar <- hnode('a -> b', f=dbl, inode=foo)
+
     expect_equal(bar(), 2)
 
     # Below I use warning to see if right function was run
