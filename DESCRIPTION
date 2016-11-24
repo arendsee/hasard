@@ -27,6 +27,7 @@ Collate:
     'is.R'
     'make.R'
     'node.R'
+    'node_access.R'
     'type.R'
     'util.R'
     'main.R'

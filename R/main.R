@@ -2,6 +2,7 @@
 #' @include is.R
 #' @include util.R
 #' @include type.R 
+#' @include node_access.R
 #' @include node.R
 #' @include make.R 
 #' @include flow.R

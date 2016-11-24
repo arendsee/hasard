@@ -100,3 +100,21 @@ test_that(
     expect_warning(bar(), "'warn' function was called")
   }
 )
+
+test_that(
+  "issue #1",
+  {
+    foo <- hnode('a->b')
+    e <- environment(foo)
+    expect_null(eval(h_fun(foo), e)())
+  }
+)
+
+test_that(
+  "issue #2",
+  {
+    foo <- hnode('a->b->c')
+    e <- environment(foo)
+    expect_null(eval(h_fun(foo), e)())
+  }
+)
