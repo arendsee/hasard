@@ -101,7 +101,11 @@ set_ <- function(field, check=true) {
         v <- eval(value)
       } else if(is.function(value)){
         k <- substitute(value)
-        v <- dynGet(deparse(k), inherits=TRUE)
+        if(is.name(k)){
+          v <- dynGet(deparse(k), inherits=TRUE)
+        } else {
+          v <- value
+        }
         # print(sprintf(' -- name=%s class=%s', deparse(k), paste(class(value), collapse=",")))
       } else {
         k <- substitute(value)
