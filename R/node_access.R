@@ -1,5 +1,21 @@
 #' Get and set elements of an hnode
 #'
+#' The `h_*` functions return the object after evaluating it within the hnode
+#' environment. For example,
+#'
+#' ```
+#' h_fun <- function(h) { eval(formals(h)$.fun, environment(h)) }
+#' ```
+#'
+#' The  `h_*_ne` functions return the object directly (they will normally be
+#' expressions). The `ne` stands for 'no evaluation'.
+#'
+#' ```
+#' h_fun_ne <- function(h) { formals(h)$.fun }
+#' ```
+#'
+#' The `h_*_ne` family is mostly useless. I keep it around for testing.
+#'
 #' @param h a function of the 'hnode' class
 #' @param value right hand value for assignment
 #' @name hnode_setters
@@ -9,31 +25,59 @@ NULL
 
 #' @rdname hnode_setters
 #' @export
-h_fun <- function(h) { formals(h)$.fun }
+h_fun <- function(h) { eval(formals(h)$.fun, environment(h)) }
 
 #' @rdname hnode_setters
 #' @export
-h_inode <- function(h) { formals(h)$.inode }
+h_inode <- function(h) { eval(formals(h)$.inode, environment(h)) }
 
 #' @rdname hnode_setters
 #' @export
-h_val <- function(h) { formals(h)$.val }
+h_val <- function(h) { eval(formals(h)$.val, environment(h)) }
 
 #' @rdname hnode_setters
 #' @export
-h_pass <- function(h) { formals(h)$.pass }
+h_pass <- function(h) { eval(formals(h)$.pass, environment(h)) }
 
 #' @rdname hnode_setters
 #' @export
-h_fail <- function(h) { formals(h)$.fail }
+h_fail <- function(h) { eval(formals(h)$.fail, environment(h)) }
 
 #' @rdname hnode_setters
 #' @export
-h_effect <- function(h) { formals(h)$.effect }
+h_effect <- function(h) { eval(formals(h)$.effect, environment(h)) }
 
 #' @rdname hnode_setters
 #' @export
-h_cacher <- function(h) { formals(h)$.cacher }
+h_cacher <- function(h) { eval(formals(h)$.cacher, environment(h)) }
+
+#' @rdname hnode_setters
+#' @export
+h_fun_ne <- function(h) { formals(h)$.fun }
+
+#' @rdname hnode_setters
+#' @export
+h_inode_ne <- function(h) { formals(h)$.inode }
+
+#' @rdname hnode_setters
+#' @export
+h_val_ne <- function(h) { formals(h)$.val }
+
+#' @rdname hnode_setters
+#' @export
+h_pass_ne <- function(h) { formals(h)$.pass }
+
+#' @rdname hnode_setters
+#' @export
+h_fail_ne <- function(h) { formals(h)$.fail }
+
+#' @rdname hnode_setters
+#' @export
+h_effect_ne <- function(h) { formals(h)$.effect }
+
+#' @rdname hnode_setters
+#' @export
+h_cacher_ne <- function(h) { formals(h)$.cacher }
 
 #' @rdname hnode_setters
 #' @export

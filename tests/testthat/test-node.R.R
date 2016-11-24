@@ -15,13 +15,13 @@ test_that(
       .args   = list(a=42)
     ){}
 
-    expect_equal(deparse(h_fun(foo)),    "nothing")
-    expect_equal(deparse(h_inode(foo)),  "nothing")
-    expect_equal(deparse(h_val(foo)),    "true")
-    expect_equal(deparse(h_pass(foo)),   "execute")
-    expect_equal(deparse(h_fail(foo)),   "nothing")
-    expect_equal(deparse(h_effect(foo)), "nothing")
-    expect_equal(deparse(h_cacher(foo)), "nocache")
+    expect_equal(deparse(h_fun_ne(foo)),    "nothing")
+    expect_equal(deparse(h_inode_ne(foo)),  "nothing")
+    expect_equal(deparse(h_val_ne(foo)),    "true")
+    expect_equal(deparse(h_pass_ne(foo)),   "execute")
+    expect_equal(deparse(h_fail_ne(foo)),   "nothing")
+    expect_equal(deparse(h_effect_ne(foo)), "nothing")
+    expect_equal(deparse(h_cacher_ne(foo)), "nocache")
     expect_equal(eval(h_args(foo)), list(a = 42))
     expect_equal(h_delete(foo), FALSE)
   }
@@ -33,22 +33,22 @@ test_that(
     foo <- hnode('a -> b')
     expect_equal(htype(foo), c('a', 'b'))
     
-    expect_equal(deparse(h_fun(foo)),    "do_nothing")
-    expect_equal(deparse(h_inode(foo)),  "input_nothing")
-    expect_equal(deparse(h_val(foo)),    "true")
-    expect_equal(deparse(h_pass(foo)),   "execute")
-    expect_equal(deparse(h_fail(foo)),   "nothing")
-    expect_equal(deparse(h_effect(foo)), "nothing")
-    expect_equal(deparse(h_cacher(foo)), "nocache")
+    expect_equal(deparse(h_fun_ne(foo)),    "do_nothing")
+    expect_equal(deparse(h_inode_ne(foo)),  "input_nothing")
+    expect_equal(deparse(h_val_ne(foo)),    "true")
+    expect_equal(deparse(h_pass_ne(foo)),   "execute")
+    expect_equal(deparse(h_fail_ne(foo)),   "nothing")
+    expect_equal(deparse(h_effect_ne(foo)), "nothing")
+    expect_equal(deparse(h_cacher_ne(foo)), "nocache")
     expect_equal(eval(h_args(foo)), list())
     expect_equal(h_delete(foo), FALSE)
 
     bar <- hnode('NA -> b')
     expect_equal(htype(bar), c(NA, 'b'))
     
-    expect_equal(deparse(h_fun(bar)),    "nothing")
-    expect_equal(deparse(h_effect(bar)), "nothing")
-    expect_equal(deparse(h_cacher(bar)), "nocache")
+    expect_equal(deparse(h_fun_ne(bar)),    "nothing")
+    expect_equal(deparse(h_effect_ne(bar)), "nothing")
+    expect_equal(deparse(h_cacher_ne(bar)), "nocache")
     expect_equal(eval(h_args(bar)), list())
     expect_equal(h_delete(bar), FALSE)
   }
@@ -65,12 +65,12 @@ test_that(
     baz <- hnode('NA -> a')
     h_fun(baz) <- one
 
-    expect_equal({h_fun(foo)    <- bar;   deparse(h_fun(foo))},    "bar")
-    expect_equal({h_inode(foo)  <- baz;   deparse(h_inode(foo))},  "baz")
-    expect_equal({h_val(foo)    <- false; deparse(h_val(foo))},    "false")
-    expect_equal({h_pass(foo)   <- baz;   deparse(h_pass(foo))},   "baz")
-    expect_equal({h_fail(foo)   <- baz;   deparse(h_fail(foo))},   "baz")
-    expect_equal({h_effect(foo) <- baz;   deparse(h_effect(foo))}, "baz")
+    expect_equal({h_fun(foo)    <- bar;   deparse(h_fun_ne(foo))},    "bar")
+    expect_equal({h_inode(foo)  <- baz;   deparse(h_inode_ne(foo))},  "baz")
+    expect_equal({h_val(foo)    <- false; deparse(h_val_ne(foo))},    "false")
+    expect_equal({h_pass(foo)   <- baz;   deparse(h_pass_ne(foo))},   "baz")
+    expect_equal({h_fail(foo)   <- baz;   deparse(h_fail_ne(foo))},   "baz")
+    expect_equal({h_effect(foo) <- baz;   deparse(h_effect_ne(foo))}, "baz")
   }
 )
 
@@ -102,11 +102,15 @@ test_that(
 )
 
 test_that(
-  "issue #1",
+  "issue #1 - check all defaults",
   {
     foo <- hnode('a->b')
-    e <- environment(foo)
-    expect_null(eval(h_fun(foo), e)())
+    expect_null(h_fun(foo)())
+    expect_null(h_inode(foo)[[1]]())
+    expect_true(h_val(foo)())
+    expect_null(h_pass(foo)(h_fun(foo), 1))
+    expect_null(h_fail(foo)())
+    expect_null(h_effect(foo)())
   }
 )
 
@@ -114,7 +118,6 @@ test_that(
   "issue #2",
   {
     foo <- hnode('a->b->c')
-    e <- environment(foo)
-    expect_null(eval(h_fun(foo), e)())
+    expect_null(h_fun(foo)())
   }
 )

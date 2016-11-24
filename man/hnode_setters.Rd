@@ -5,20 +5,27 @@
 \alias{h_args<-}
 \alias{h_cacher}
 \alias{h_cacher<-}
+\alias{h_cacher_ne}
 \alias{h_delete}
 \alias{h_delete<-}
 \alias{h_effect}
 \alias{h_effect<-}
+\alias{h_effect_ne}
 \alias{h_fail}
 \alias{h_fail<-}
+\alias{h_fail_ne}
 \alias{h_fun}
 \alias{h_fun<-}
+\alias{h_fun_ne}
 \alias{h_inode}
 \alias{h_inode<-}
+\alias{h_inode_ne}
 \alias{h_pass}
 \alias{h_pass<-}
+\alias{h_pass_ne}
 \alias{h_val}
 \alias{h_val<-}
+\alias{h_val_ne}
 \alias{hnode_setters}
 \title{Get and set elements of an hnode}
 \usage{
@@ -35,6 +42,20 @@ h_fail(h)
 h_effect(h)
 
 h_cacher(h)
+
+h_fun_ne(h)
+
+h_inode_ne(h)
+
+h_val_ne(h)
+
+h_pass_ne(h)
+
+h_fail_ne(h)
+
+h_effect_ne(h)
+
+h_cacher_ne(h)
 
 h_args(h)
 
@@ -66,6 +87,21 @@ h_delete(h) <- value
 \item{value}{right hand value for assignment}
 }
 \description{
-Get and set elements of an hnode
+The `h_*` functions return the object after evaluating it within the hnode
+environment. For example,
+}
+\details{
+```
+h_fun <- function(h) { eval(formals(h)$.fun, environment(h)) }
+```
+
+The  `h_*_ne` functions return the object directly (they will normally be
+expressions). The `ne` stands for 'no evaluation'.
+
+```
+h_fun_ne <- function(h) { formals(h)$.fun }
+```
+
+The `h_*_ne` family is mostly useless. I keep it around for testing.
 }
 

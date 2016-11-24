@@ -270,10 +270,11 @@ h_hclust()
 Now lets add output summary functions to each
 
 ```{r}
-h_effect(h_load_data) <- compose(summary, print)
-h_effect(h_normalize) <- compose(summary, print)
-h_effect(h_dist)      <- compose(summary, print)
-h_effect(h_hclust)    <- compose(summary, print)
+summary_and_print <- compose(summary, print)
+h_effect(h_load_data) <- summary_and_print
+h_effect(h_normalize) <- summary_and_print
+h_effect(h_dist)      <- summary_and_print
+h_effect(h_hclust)    <- summary_and_print
 ```
 
 Now we can run this
