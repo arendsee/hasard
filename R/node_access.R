@@ -88,7 +88,6 @@ h_args <- function(h) { formals(h)$.args }
 h_delete <- function(h) { formals(h)$.delete }
 
 
-
 set_ <- function(field, check=true) {
   fun <- function(h, value){}
   body(fun) <- substitute(
@@ -114,13 +113,14 @@ set_ <- function(field, check=true) {
         a <- attributes(h)
         formals(h)[[field]] <- k
         attributes(h) <- a
+        attributes(h)$srcref <- NULL
       } else {
         stop(sprintf("Assignment to '%s' failed", field))
       }
       h
     }
   )
-  environment(fun) <- parent.frame()
+  parent.env(environment(fun)) <- parent.frame()
   fun
 }
 

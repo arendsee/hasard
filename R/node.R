@@ -47,6 +47,7 @@ hsource_ <- function(
   h_delete(fun) <- FALSE
   h_args(fun)   <- substitute(args)
 
+
   fun
 }
 
@@ -61,7 +62,6 @@ default_fun <- function(type){
       {parse(text=sprintf('alist(%s =)', paste(., collapse="= ,")))} %>%
       eval
   }
-  # htype(fun) <- type
   fun
 }
 
@@ -95,7 +95,7 @@ hpipe_ <- function(
   args    = list()
 ){
   
-  fun <- function(.fun, .val, .pass, .fail, .effect, .cacher, .args, .delete){
+  fun <- function(.fun, .inode, .val, .pass, .fail, .effect, .cacher, .args, .delete){
     if(.delete){ .cacher('del') }
 
     if(.cacher('chk')){

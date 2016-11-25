@@ -55,6 +55,41 @@ test_that(
 )
 
 test_that(
+  "test linear pipeline",
+  {
+
+    f0 <- function(){'a'}
+    f1 <- function(x){ paste0(x, 'b') }
+    f2 <- function(x){ paste0(x, 'c') }
+
+    h0 <- hnode('NA->a',  f=f0)
+    h1 <- hnode('a->b',   f=f1, inode=h0)
+    h2 <- hnode('b->NA',  f=f2, inode=h1)
+
+    expect_equal(h2(), 'abc')
+
+  }
+)
+
+# test_that(
+#   "test branching pipeline",
+#   {
+#
+#     f0 <- function(){'a'}
+#     f1 <- function(){'b'}
+#     f2 <- function(){'c'}
+#     f3 <- function(a,b,c){ paste0(a,b,c) }
+#
+#     h0 <- hnode('NA->a',        f=f0)
+#     h1 <- hnode('NA->b',        f=f1)
+#     h2 <- hnode('NA->c',        f=f2)
+#     h3 <- hnode('a->b->c->abc', f=f3, inode=list(h0,h1,h2))
+#
+#     expect_equal(h3(), 'abc')
+#   }
+# )
+
+test_that(
   "issue #2",
   {
     foo <- hnode('a->b->c')
