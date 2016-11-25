@@ -115,7 +115,7 @@ set_ <- function(field, check=true) {
         formals(h)[[field]] <- k
         attributes(h) <- a
       } else {
-        stop("Assignment to '%s' failed", deparse(field))
+        stop(sprintf("Assignment to '%s' failed", field))
       }
       h
     }
