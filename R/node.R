@@ -26,20 +26,17 @@ hsource_ <- function(
   args   = list()
 ){
 
-  fun <- function(){}
-  body(fun) <- quote( 
-    {
-      if(.delete){ .cacher('del') }
-      if(!.cacher('chk')){
-        b <- do.call(.fun, .args)
-        runall(.effect, b)
-        .cacher('put', b)
-      } else {
-        b <- .cacher('get')
-      }
-      b
+  fun <- function(.fun, .effect, .cacher, .delete, .args){
+    if(.delete){ .cacher('del') }
+    if(!.cacher('chk')){
+      b <- do.call(.fun, .args)
+      runall(.effect, b)
+      .cacher('put', b)
+    } else {
+      b <- .cacher('get')
     }
-  )
+    b
+  }
 
   htype(fun) <- type
   fun <- add_class(fun, 'hnode', 'source')
@@ -97,35 +94,32 @@ hpipe_ <- function(
   cacher  = nocache,
   args    = list()
 ){
+  
+  fun <- function(.fun, .val, .pass, .fail, .effect, .cacher, .args, .delete){
+    if(.delete){ .cacher('del') }
 
-  fun <- function(){}
-  body(fun) <- quote(
-    {
-      if(.delete){ .cacher('del') }
-
-      if(.cacher('chk')){
-        return(.cacher('get'))
-      }
-
-      if(class(.inode)[1] != 'list'){
-        .inode <- list(.inode)
-      }
-
-      a <- lapply(.inode, execute)
-
-      funlist <- append(.fun, append(a, args))
-
-      if(do.call(.val, a)){
-        b <- do.call(.pass, funlist)
-      } else {
-        b <- do.call(.fail, funlist)
-      }
-
-      runall(.effect, b, h_input=a)
-      .cacher('put', b)
-      b
+    if(.cacher('chk')){
+      return(.cacher('get'))
     }
-  )
+
+    if(class(.inode)[1] != 'list'){
+      .inode <- list(.inode)
+    }
+
+    a <- lapply(.inode, execute)
+
+    funlist <- append(.fun, append(a, args))
+
+    if(do.call(.val, a)){
+      b <- do.call(.pass, funlist)
+    } else {
+      b <- do.call(.fail, funlist)
+    }
+
+    runall(.effect, b, h_input=a)
+    .cacher('put', b)
+    b
+  }
 
   htype(fun) <- type
   fun <- add_class(fun, 'hnode')

@@ -106,14 +106,13 @@ set_ <- function(field, check=true) {
         } else {
           v <- value
         }
-        # print(sprintf(' -- name=%s class=%s', deparse(k), paste(class(value), collapse=",")))
       } else {
         k <- substitute(value)
         v <- value
       }
       if(check(h, v)){
         a <- attributes(h)
-        formals(h)$field <- k
+        formals(h)[[field]] <- k
         attributes(h) <- a
       } else {
         stop("Assignment to '%s' failed", deparse(field))
@@ -164,40 +163,40 @@ check_inode_ <- function(h, value){
 
 #' @export
 #' @rdname hnode_setters
-`h_fun<-` <- set_(.fun, check=check_fun_)
+`h_fun<-` <- set_(".fun", check=check_fun_)
 
 #' @export
 #' @rdname hnode_setters
-`h_inode<-` <- set_(.inode, check=check_inode_)
+`h_inode<-` <- set_(".inode", check=check_inode_)
 
 #' @export
 #' @rdname hnode_setters
-`h_val<-` <- set_(.val)
+`h_val<-` <- set_(".val")
 
 #' @export
 #' @rdname hnode_setters
-`h_pass<-` <- set_(.pass)
+`h_pass<-` <- set_(".pass")
 
 #' @export
 #' @rdname hnode_setters
-`h_fail<-` <- set_(.fail)
+`h_fail<-` <- set_(".fail")
 
 #' @export
 #' @rdname hnode_setters
-`h_effect<-` <- set_(.effect)
+`h_effect<-` <- set_(".effect")
 
 #' @export
 #' @rdname hnode_setters
-`h_cacher<-` <- set_(.cacher)
+`h_cacher<-` <- set_(".cacher")
 
 #' @export
 #' @rdname hnode_setters
-`h_fail<-` <- set_(.fail)
+`h_fail<-` <- set_(".fail")
 
 #' @export
 #' @rdname hnode_setters
-`h_args<-` <- set_(.args)
+`h_args<-` <- set_(".args")
 
 #' @export
 #' @rdname hnode_setters
-`h_delete<-` <- set_(.delete)
+`h_delete<-` <- set_(".delete")
