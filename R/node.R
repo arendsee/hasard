@@ -102,11 +102,7 @@ hpipe_ <- function(
       return(.cacher('get'))
     }
 
-    if(class(.inode)[1] != 'list'){
-      .inode <- list(.inode)
-    }
-
-    a <- lapply(.inode, execute)
+    a <- runall(.inode, envir=parent.frame())
 
     funlist <- append(.fun, append(a, args))
 

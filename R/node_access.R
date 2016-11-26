@@ -97,7 +97,9 @@ set_ <- function(field, check=true) {
         v <- dynGet(deparse(value), inherits=TRUE)
       } else if(is.call(value)){
         k <- value
-        v <- eval(value)
+        # set_ -> `h_*` -> h_sink_/h_pipe_ -> (hnode) -> global
+        # where hnode is spliced out
+        v <- eval(value, parent.frame(3))
       } else if(is.function(value)){
         k <- substitute(value)
         if(is.name(k)){
@@ -105,7 +107,8 @@ set_ <- function(field, check=true) {
         } else {
           v <- value
         }
-      } else {
+      }
+      else {
         k <- substitute(value)
         v <- value
       }
@@ -132,8 +135,9 @@ check_fun_ <- function(h, value){
   }
   if(npositional(value) != nhargs(h)){
     warning(sprintf(
-      "found %d positional arguments in value, but this node requires a function of type %s",
+      "found %d positional arguments in %s, but this node requires a function of type %s",
       npositional(value),
+      deparse(substitute(value)),
       type_str(h)
     ))
     success <- FALSE
@@ -143,12 +147,17 @@ check_fun_ <- function(h, value){
 
 check_inode_ <- function(h, value){
   success <- TRUE
-  if(class(value)[1] != 'list'){
+  if(is.function(value)){
     value <- list(value)
+  } else if(is.list(value)){
+    if(!all(sapply(value, is.function))){
+      warning('all elements of an inode list must be functions')
+      success <- FALSE
+    }
+  } else {
+    warning("inode must be a function or list of functions")
+    success <- FALSE
   }
-  # if(!all(sapply(value, is.hnode))){
-  #   warning("input node is not of class 'hnode', this may be OK")
-  # }
   if(length(value) != nhargs(h)){
     warning(sprintf(
       "found %d arguments in .inode, expected %d for function of type %s",
@@ -163,11 +172,11 @@ check_inode_ <- function(h, value){
 
 #' @export
 #' @rdname hnode_setters
-`h_fun<-` <- set_(".fun", check=check_fun_)
+`h_inode<-` <- set_(".inode", check=check_inode_)
 
 #' @export
 #' @rdname hnode_setters
-`h_inode<-` <- set_(".inode", check=check_inode_)
+`h_fun<-` <- set_(".fun", check=check_fun_)
 
 #' @export
 #' @rdname hnode_setters

@@ -61,9 +61,9 @@ h_args(h)
 
 h_delete(h)
 
-h_fun(h) <- value
-
 h_inode(h) <- value
+
+h_fun(h) <- value
 
 h_val(h) <- value
 

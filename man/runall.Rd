@@ -4,12 +4,14 @@
 \alias{runall}
 \title{Run functions for their side effects}
 \usage{
-runall(f, ...)
+runall(f, ..., envir = parent.frame())
 }
 \arguments{
 \item{f}{a function or a list of functions}
 
 \item{...}{arguments sent to f}
+
+\item{envir}{environment in which to execute f}
 }
 \description{
 Run functions for their side effects

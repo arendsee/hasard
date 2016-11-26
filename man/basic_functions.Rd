@@ -27,7 +27,7 @@ blank()
 
 id(x, ...)
 
-execute(FUN, ...)
+execute(FUN, ..., envir = parent.frame())
 
 nocache(op, ...)
 }
@@ -37,6 +37,8 @@ nocache(op, ...)
 \item{x}{anything}
 
 \item{FUN}{any function}
+
+\item{envir}{environment in which to execute}
 
 \item{op}{command for cache function}
 }

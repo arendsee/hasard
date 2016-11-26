@@ -33,14 +33,15 @@ nformals <- function(f){
 #' Run functions for their side effects
 #' 
 #' @param f a function or a list of functions
+#' @param envir environment in which to execute f
 #' @param ... arguments sent to f
 #' @export
-runall <- function(f, ...){
+runall <- function(f, ..., envir=parent.frame()){
   if(!all(class(f) == 'list')){
     f <- list(f)
   }
   if(all(sapply(f, is.function))){
-    lapply(f, execute, ...)
+    lapply(f, execute, envir=envir, ...)
   } else {
     stop("f must be a function or list of functions")
   }

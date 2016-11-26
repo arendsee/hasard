@@ -71,23 +71,23 @@ test_that(
   }
 )
 
-# test_that(
-#   "test branching pipeline",
-#   {
-#
-#     f0 <- function(){'a'}
-#     f1 <- function(){'b'}
-#     f2 <- function(){'c'}
-#     f3 <- function(a,b,c){ paste0(a,b,c) }
-#
-#     h0 <- hnode('NA->a',        f=f0)
-#     h1 <- hnode('NA->b',        f=f1)
-#     h2 <- hnode('NA->c',        f=f2)
-#     h3 <- hnode('a->b->c->abc', f=f3, inode=list(h0,h1,h2))
-#
-#     expect_equal(h3(), 'abc')
-#   }
-# )
+test_that(
+  "test branching pipeline",
+  {
+
+    f0 <- function(){'a'}
+    f1 <- function(){'b'}
+    f2 <- function(){'c'}
+    f3 <- function(a,b,c){ paste0(a,b,c) }
+
+    h0 <- hnode('NA->a',        f=f0)
+    h1 <- hnode('NA->b',        f=f1)
+    h2 <- hnode('NA->c',        f=f2)
+    h3 <- hnode('a->b->c->abc', f=f3, inode=list(h0,h1,h2))
+
+    expect_equal(h3(), 'abc')
+  }
+)
 
 test_that(
   "issue #2",

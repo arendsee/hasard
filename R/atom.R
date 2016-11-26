@@ -15,6 +15,7 @@
 #' @param FUN any function
 #' @param x anything
 #' @param op command for cache function
+#' @param envir environment in which to execute
 #' @param ... anything
 #' @name basic_functions
 NULL
@@ -61,11 +62,12 @@ id <- function(x, ...){
 
 #' @rdname basic_functions
 #' @export
-execute <- function(FUN, ...) {
+execute <- function(FUN, ..., envir=parent.frame()) {
   if(!is.function(FUN)){
-    stop("the first argument in `execute` must be a function")
+    msg <- "the first argument in `execute` must be a function, not a '%s'"
+    stop(sprintf(msg, paste(class(FUN), collapse=",")))
   }
-  FUN(...)
+  eval(FUN(...), envir)
 }
 
 #' @rdname basic_functions
