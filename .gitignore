@@ -4,3 +4,6 @@
 ..Rcheck
 inst/doc
 tags
+*.Rdata
+*.Rdat
+*.rdat
