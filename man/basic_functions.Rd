@@ -26,7 +26,7 @@ blank()
 
 id(x, ...)
 
-execute(FUN, ..., envir = parent.frame())
+execute(FUN, ...)
 }
 \arguments{
 \item{...}{anything}
@@ -34,8 +34,6 @@ execute(FUN, ..., envir = parent.frame())
 \item{x}{anything}
 
 \item{FUN}{any function}
-
-\item{envir}{environment in which to execute}
 }
 \description{
 \itemize{

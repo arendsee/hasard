@@ -8,7 +8,9 @@ test_that(
     f_maker <- function() { x=1; function() {y<-x; x <<- x+1; y} }
     f1 <- f_maker()
 
-    a <- hnode('NA->a', f=f1)
+    a <- hwell('a')
+    h_fun(a) <- f1
+
     expect_equal(a(), 1)
     expect_equal(a(), 2)
 
@@ -21,5 +23,21 @@ test_that(
     expect_equal(a(), 4)
 
     expect_true(file.exists('test.Rdat'))
+  }
+)
+
+test_that(
+  "issue #4",
+  {
+    f_maker <- function() { x=1; function() {y<-x; x <<- x+1; y} }
+    foo <- f_maker()
+    a <- hwell('a')
+    h_fun(a) <- foo
+
+    cacher <- make_memcache()
+    h_cacher(a) <- cacher
+
+    expect_equal(a(), 1)
+    expect_equal(a(), 1)
   }
 )

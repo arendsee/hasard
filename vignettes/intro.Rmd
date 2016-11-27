@@ -37,8 +37,8 @@ In this test case I will make a simple hierarchical cluster of the iris data
 set.
 
 ```{r, echo=TRUE}
-require(pied)
-require(magrittr)
+library(pied)
+library(magrittr)
 ```
 
 
@@ -216,19 +216,20 @@ be easily created with the `hnode` command.
 Here is the minimal pied example
 
 ```{r}
-h_load_data <- hnode('NA -> a')
-h_normalize <- hnode('a -> b')
-h_dist      <- hnode('b -> c')
-h_hclust    <- hnode('c -> d')
-h_hclust()
-```
+h_load_data <- hwell('a')
+h_normalize <- hpipe('a -> b')
+h_dist      <- hpipe('b -> c')
+h_hclust    <- hpipe('c -> d')
 
+h_fun(h_load_data) <- f_load_data
+h_fun(h_normalize) <- f_normalize
+h_fun(h_dist)      <- f_dist
+h_fun(h_hclust)    <- f_hclust
 
-```{r}
-h_load_data <- hnode('NA -> a', f=f_load_data)
-h_normalize <- hnode('a -> b',  f=f_normalize, inode=h_load_data)
-h_dist      <- hnode('b -> c',  f=f_dist,      inode=h_normalize)
-h_hclust    <- hnode('c -> d',  f=f_hclust,    inode=h_dist)
+h_inode(h_normalize) <- h_load_data
+h_inode(h_dist)      <- h_normalize
+h_inode(h_hclust)    <- h_dist
+
 h_hclust()
 ```
 
@@ -314,14 +315,19 @@ f_hclust <- function(x, ...) {
   hclust(x, ...)
 }
 
-h_load_data <- hnode('NA -> a')
-h_normalize <- hnode('a -> b')
-h_dist      <- hnode('b -> c')
-h_hclust    <- hnode('c -> d')
+h_load_data <- hwell('a')
+h_normalize <- hpipe('a -> b')
+h_dist      <- hpipe('b -> c')
+h_hclust    <- hpipe('c -> d')
 
-h_load_data <- hnode('NA -> a', f=f_load_data)
-h_normalize <- hnode('a -> b',  f=f_normalize, inode=h_load_data)
-h_dist      <- hnode('b -> c',  f=f_dist,      inode=h_normalize)
-h_hclust    <- hnode('c -> d',  f=f_hclust,    inode=h_dist)
+h_fun(h_load_data) <- f_load_data
+h_fun(h_normalize) <- f_normalize
+h_fun(h_dist)      <- f_dist
+h_fun(h_hclust)    <- f_hclust
+
+h_inode(h_normalize) <- h_load_data
+h_inode(h_dist)      <- h_normalize
+h_inode(h_hclust)    <- h_dist
+
 h_hclust()
 ```

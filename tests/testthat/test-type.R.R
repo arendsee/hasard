@@ -20,6 +20,14 @@ test_that(
 )
 
 test_that(
+  "NA is created for wells and sinks",
+  {
+    expect_equal(parse_type('a', role='well'), c(NA, 'a'))
+    expect_equal(parse_type('a', role='sink'), c('a', NA))
+  }
+)
+
+test_that(
   "Type assignment works",
   {
     foo <- function(){}

@@ -14,44 +14,13 @@
 #' }
 #'
 #' @param type a functional type ala Haskell
-#' @param ... see Arguments
 #' @name node
 NULL
 
-hsource_ <- function(
-  type,
-  f      = nothing,
-  effect = nothing,
-  cacher = nocache,
-  args   = list()
-){
-
-  fun <- function(.fun, .effect, .cacher, .delete, .args){
-    if(.delete){ .cacher('del') }
-    if(!.cacher('chk')){
-      b <- do.call(.fun, .args)
-      runall(.effect, b)
-      .cacher('put', b)
-    } else {
-      b <- .cacher('get')
-    }
-    b
-  }
-
-  htype(fun) <- type
-  fun <- add_class(fun, 'hnode', 'source')
-
-  h_fun(fun)    <- substitute(f)
-  h_effect(fun) <- substitute(effect)
-  h_cacher(fun) <- substitute(cacher)
-  h_delete(fun) <- FALSE
-  h_args(fun)   <- substitute(args)
-
-
-  fun
-}
-
+#' @rdname node
+#' @export
 default_fun <- function(type){
+  type <- parse_type(type)
   N <- nhargs(type)
   fun <- nothing
   if(N == 0){
@@ -65,7 +34,10 @@ default_fun <- function(type){
   fun
 }
 
+#' @rdname node
+#' @export
 default_inode <- function(type){
+  type <- parse_type(type)
   N <- nhargs(type)
   if(N == 0){
     inode <- list()
@@ -83,75 +55,78 @@ default_inode <- function(type){
   inode
 }
 
-hpipe_ <- function(
-  type,
-  f       = default_fun(type),
-  inode   = default_inode(type),
-  val     = true,
-  pass    = execute,
-  fail    = nothing,
-  effect  = nothing,
-  cacher  = nocache,
-  args    = list()
-){
-  
-  fun <- function(.fun, .inode, .val, .pass, .fail, .effect, .cacher, .args, .delete){
+#' @rdname node
+#' @export
+hwell <- function(type){
+  type <- parse_type(type, role='well')
+
+  h <- function(
+    .fun    = nothing,
+    .effect = nothing,
+    .cacher = nocache,
+    .delete = FALSE,
+    .args   = list()
+  ){
+    if(.delete){ .cacher('del') }
+    if(!.cacher('chk')){
+      b <- do.call(.fun, .args)
+      runall(.effect, b)
+      .cacher('put', b)
+    } else {
+      b <- .cacher('get')
+    }
+    b
+  }
+
+  h <- add_class(h, 'hnode', 'well')
+  htype(h) <- type
+  parent.env(environment(h)) <- parent.frame()
+  h
+}
+
+#' @rdname node
+#' @export
+hpipe <- function(type){
+  type <- parse_type(type)
+
+  h <- function(
+    type,
+    .fun    = default_fun(type),
+    .inode  = default_inode(type),
+    .val    = true,
+    .pass   = execute,
+    .fail   = nothing,
+    .effect = nothing,
+    .cacher = nocache,
+    .delete = FALSE,
+    .args   = list()
+  ){
     if(.delete) .cacher('del')
-
     if(.cacher('chk')) return(.cacher('get'))
-
-    a <- runall(.inode, envir=parent.frame())
-
-    funlist <- append(.fun, append(a, args))
-
+    a <- runall(.inode)
+    funlist <- append(.fun, append(a, .args))
     if(do.call(.val, a)){
       b <- do.call(.pass, funlist)
     } else {
       b <- do.call(.fail, funlist)
     }
-
     runall(.effect, b, h_input=a)
     .cacher('put', b)
     b
   }
 
-  htype(fun) <- type
-  fun <- add_class(fun, 'hnode')
-
-  if(missing(f)){
-    do_nothing <- force(f)
-    h_fun(fun) <- do_nothing
-  } else {
-    h_fun(fun) <- substitute(f)
-  }
-
-  if(missing(inode)){
-    input_nothing <- force(inode)
-    h_inode(fun) <- input_nothing
-  } else {
-    h_inode(fun) <- substitute(inode)
-  }
-
-  h_val(fun)    <- substitute(val)
-  h_pass(fun)   <- substitute(pass)
-  h_fail(fun)   <- substitute(fail)
-  h_effect(fun) <- substitute(effect)
-  h_cacher(fun) <- substitute(cacher)
-  h_args(fun)   <- substitute(args)
-  h_delete(fun) <- FALSE
-
-  fun
+  h <- add_class(h, 'hnode', 'pipe')
+  htype(h) <- type
+  parent.env(environment(h)) <- parent.frame()
+  h
 }
 
 #' @rdname node
 #' @export
-hnode <- function(type, ...){
-  type <- parse_type(type)
-  if(nhargs(type) == 0){
-    fun <- hsource_(type, ...)
-  } else {
-    fun <- hpipe_(type, ...)
-  }
-  parent.env(environment(fun)) <- parent.frame()
-  fun
+hsink <- function(type){
+  type <- parse_type(type, 'sink')
+  h <- hpipe(type)
+  h <- add_class(h, 'hnode', 'sink')
+  parent.env(environment(h)) <- parent.frame()
+  h
 }

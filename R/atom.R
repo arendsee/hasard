@@ -13,7 +13,6 @@
 #'
 #' @param FUN any function
 #' @param x anything
-#' @param envir environment in which to execute
 #' @param ... anything
 #' @name basic_functions
 NULL
@@ -60,10 +59,10 @@ id <- function(x, ...){
 
 #' @rdname basic_functions
 #' @export
-execute <- function(FUN, ..., envir=parent.frame()) {
+execute <- function(FUN, ...) {
   if(!is.function(FUN)){
     msg <- "the first argument in `execute` must be a function, not a '%s'"
     stop(sprintf(msg, paste(class(FUN), collapse=",")))
   }
-  eval(FUN(...), envir)
+  FUN(...)
 }

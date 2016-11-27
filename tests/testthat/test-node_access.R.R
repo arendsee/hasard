@@ -33,9 +33,9 @@ test_that(
     one <- function(){ 1 }
     bar <- function(x){}
 
-    foo <- hnode('a -> b')
-    # baz <- hnode('NA -> a', f=one)
-    baz <- hnode('NA -> a')
+    foo <- hpipe('a -> b')
+
+    baz <- hwell('a')
     h_fun(baz) <- one
 
     expect_equal({h_fun(foo)    <- bar;   deparse(h_fun_ne(foo))},    "bar")
@@ -50,7 +50,7 @@ test_that(
 test_that(
   "issue #1 - check all defaults",
   {
-    foo <- hnode('a->b')
+    foo <- hpipe('a->b')
     expect_null(h_fun(foo)())
     expect_null(h_inode(foo)[[1]]())
     expect_true(h_val(foo)())
@@ -63,7 +63,7 @@ test_that(
 test_that(
   "issue #3 - assignment of anonymous functions",
   {
-    foo <- hnode('a->b')
+    foo <- hpipe('a->b')
     expect_equal({ h_fun(foo) <- function(x){1}; h_fun(foo)() }, 1)
 
     foo_name <- h_fun_ne(foo) %>%

@@ -15,7 +15,7 @@
 \usage{
 type_str(f)
 
-parse_type(x)
+parse_type(x, role = "pipe")
 
 htype(f)
 
@@ -35,6 +35,8 @@ nhargs(f)
 \item{f}{any function}
 
 \item{x}{type string}
+
+\item{role}{['well', 'pipe', 'sink']}
 
 \item{value}{character string}
 }

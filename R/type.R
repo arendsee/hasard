@@ -20,6 +20,7 @@
 #' 
 #' @param f any function
 #' @param value character string
+#' @param role ['well', 'pipe', 'sink']
 #' @param x type string
 #' @name type
 NULL
@@ -32,7 +33,7 @@ type_str <- function(f){
 
 #' @rdname type
 #' @export
-parse_type <- function(x){
+parse_type <- function(x, role='pipe'){
   # If the input is an object with a defined htype, use this type
   if(!is.null(htype(x))){
     x <- htype(x)
@@ -43,6 +44,15 @@ parse_type <- function(x){
     x <- gsub('\\(|\\)', '', x, perl=TRUE)
     x <- ifelse(x == 'NA', NA, x)
   }
+
+  # Allow well and sink nodes to omit the NA
+  if(role == 'well' && length(x) == 1) {
+    x <- c(NA, x) 
+  }
+  if(role == 'sink' && length(x) == 1) {
+    x <- c(x, NA)
+  }
+
   # If the type is not a character vector, die with great angst
   if(!is.character(x)){
     stop("Input type must be a character vector")
