@@ -9,12 +9,10 @@
 #'   \item blank - takes no arguments and returns nothing
 #'   \item id - returns first argument unchanged, ignores others
 #'   \item execute - pass ... to FUN and return the results
-#'   \item cache - a cache function that does nothing
 #' }
 #'
 #' @param FUN any function
 #' @param x anything
-#' @param op command for cache function
 #' @param envir environment in which to execute
 #' @param ... anything
 #' @name basic_functions
@@ -68,16 +66,4 @@ execute <- function(FUN, ..., envir=parent.frame()) {
     stop(sprintf(msg, paste(class(FUN), collapse=",")))
   }
   eval(FUN(...), envir)
-}
-
-#' @rdname basic_functions
-#' @export
-nocache <- function(op, ...) {
-  switch(
-    op,
-    del = nothing(...),
-    chk = false(...),
-    put = nothing(...),
-    get = nothing(...),
-  )
 }

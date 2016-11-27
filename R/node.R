@@ -96,11 +96,9 @@ hpipe_ <- function(
 ){
   
   fun <- function(.fun, .inode, .val, .pass, .fail, .effect, .cacher, .args, .delete){
-    if(.delete){ .cacher('del') }
+    if(.delete) .cacher('del')
 
-    if(.cacher('chk')){
-      return(.cacher('get'))
-    }
+    if(.cacher('chk')) return(.cacher('get'))
 
     a <- runall(.inode, envir=parent.frame())
 

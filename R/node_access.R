@@ -92,23 +92,10 @@ set_ <- function(field, check=true) {
   fun <- function(h, value){}
   body(fun) <- substitute(
     {
-      if(is.name(value)){
+      if(is.name(value) || is.call(value)){
         k <- value
-        v <- dynGet(deparse(value), inherits=TRUE)
-      } else if(is.call(value)){
-        k <- value
-        # set_ -> `h_*` -> h_sink_/h_pipe_ -> (hnode) -> global
-        # where hnode is spliced out
         v <- eval(value, parent.frame(3))
-      } else if(is.function(value)){
-        k <- substitute(value)
-        if(is.name(k)){
-          v <- dynGet(deparse(k), inherits=TRUE)
-        } else {
-          v <- value
-        }
-      }
-      else {
+      } else {
         k <- substitute(value)
         v <- value
       }
@@ -123,7 +110,6 @@ set_ <- function(field, check=true) {
       h
     }
   )
-  parent.env(environment(fun)) <- parent.frame()
   fun
 }
 

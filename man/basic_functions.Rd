@@ -7,7 +7,6 @@
 \alias{fail}
 \alias{false}
 \alias{id}
-\alias{nocache}
 \alias{nothing}
 \alias{true}
 \alias{warn}
@@ -28,8 +27,6 @@ blank()
 id(x, ...)
 
 execute(FUN, ..., envir = parent.frame())
-
-nocache(op, ...)
 }
 \arguments{
 \item{...}{anything}
@@ -39,8 +36,6 @@ nocache(op, ...)
 \item{FUN}{any function}
 
 \item{envir}{environment in which to execute}
-
-\item{op}{command for cache function}
 }
 \description{
 \itemize{
@@ -52,7 +47,6 @@ nocache(op, ...)
   \item blank - takes no arguments and returns nothing
   \item id - returns first argument unchanged, ignores others
   \item execute - pass ... to FUN and return the results
-  \item cache - a cache function that does nothing
 }
 }
 
