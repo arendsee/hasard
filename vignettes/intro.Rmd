@@ -226,9 +226,7 @@ h_fun(h_normalize) <- f_normalize
 h_fun(h_dist)      <- f_dist
 h_fun(h_hclust)    <- f_hclust
 
-h_inode(h_normalize) <- h_load_data
-h_inode(h_dist)      <- h_normalize
-h_inode(h_hclust)    <- h_dist
+connect('h_load_data --> h_normalize --> h_dist --> h_hclust')
 
 h_hclust()
 ```
@@ -325,9 +323,7 @@ h_fun(h_normalize) <- f_normalize
 h_fun(h_dist)      <- f_dist
 h_fun(h_hclust)    <- f_hclust
 
-h_inode(h_normalize) <- h_load_data
-h_inode(h_dist)      <- h_normalize
-h_inode(h_hclust)    <- h_dist
+connect('h_load_data --> h_normalize --> h_dist --> h_hclust')
 
 h_hclust()
 ```

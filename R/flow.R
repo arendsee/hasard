@@ -87,3 +87,71 @@ compose <- function(...){
 
   fun
 }
+
+#' Connect nodes into a pipeline
+#'
+#' Pathways are expressed using a simple language. Given nodes A, B, C, and D:
+#'
+#'  * 'A' - performs no operations
+#'  * 'A --> B' := `h_inode(B) <- A` in the parent frame
+#'
+#' Multiple inputs are space delimited
+#'
+#'  * 'A B --> C' := `h_inode(C) <- list(A, B)`
+#'
+#' Any number of nodes can be chained
+#'
+#'  * 'A --> B --> C' := `h_inode(B) <- A; h_inode(C) <- B`
+#'
+#' Parentheses can be used to denote branching pathways
+#'
+#'  * '(A --> B) (C --> D) E'
+#'    1. `h_inode(B) <- A`
+#'    2. `h_inode(D) <- C`
+#'    3. `h_inode(E) <- list(B, D)`
+#'
+#' @param x string describing functional pathway
+#' @examples
+#' library(pied)
+#' library(magrittr)
+#' A <- hwell('a')
+#' B <- hpipe('a -> b')
+#' C <- hpipe('b -> c')
+#' D <- hpipe('b -> c -> d')
+#'
+#' h_fun(A) <- function() 'a'
+#' h_fun(B) <- function(x) paste0(x, 'b')
+#' h_fun(C) <- function(x) paste0(x, 'c')
+#' h_fun(D) <- function(x,y) sprintf('(%s)(%s)d', x, y)
+#'
+#' connect('(A --> B) (A --> B --> C) --> D')
+#'
+#' D()
+#' @export
+connect <- function(x){
+  operations <- NULL
+  while(!stringr::str_detect(x, '^[\\w.]+$')){
+    original <- x
+    link <- stringr::str_extract(x, '[\\w. ]+\\s*-->\\s*[\\w.]+')[1]
+    x <- stringr::str_replace(x, '[\\w. ]+\\s*-->\\s*([\\w.]+)', '\\1')
+    x <- stringr::str_replace(x, '\\(\\s*([\\w.]+)\\s*\\)', '\\1')
+    if(original == x || link == "" ){
+      stop('Malformed expression, could not parse')
+    }
+    p <- stringr::str_replace(link, '-->', '')
+    p <- stringr::str_split(p, '\\s+')[[1]]
+    N <- length(p)
+    o <- p[N]
+    i <- p[-N]
+    if(N == 2){
+      set_inode <- sprintf('h_inode(%s) <- %s', o, i)
+    } else if(N > 2) {
+      set_inode <- sprintf('h_inode(%s) <- list(%s)', o, stringr::str_c(i, collapse=', '))
+    } else {
+      stop(sprintf("Expected N >= 2, but found N=%s for p='%s'", N, p))
+    }
+    eval(parse(text=set_inode), envir=parent.frame())
+    operations <- c(operations, link)
+  }
+  invisible(operations)
+}

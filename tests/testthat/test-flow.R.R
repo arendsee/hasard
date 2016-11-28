@@ -31,3 +31,36 @@ test_that(
     expect_error(compose(g,f))
   }
 )
+
+test_that(
+  "test connect",
+  {
+    A <- hwell('a')
+    B <- hpipe('a -> b')
+    C <- hpipe('b -> c')
+    D <- hpipe('b -> c -> d')
+
+    h_fun(A) <- function() 'a'
+    h_fun(B) <- function(x) paste0(x, 'b')
+    h_fun(C) <- function(x) paste0(x, 'c')
+    h_fun(D) <- function(x,y) sprintf('(%s)(%s)d', x, y)
+
+    expect_null(connect('A'))
+    expect_equal((connect('A --> B')), 'A --> B')
+    expect_equal((connect('A --> B --> C')), c('A --> B', 'B --> C'))
+    expect_equal((connect('B C --> D')), 'B C --> D')
+    expect_equal((connect('(A --> B) (A --> B --> C) --> D')), c('A --> B', 'A --> B', 'B --> C', 'B C --> D'))
+
+    # Bad expression
+    expect_error(connect('((A --> B'))
+    # Type error (should be caught in `h_inode<-`)
+    expect_error(connect('B --> A'))
+
+    expect_equal(D(), '(ab)(abc)d')
+
+    # Check for weird name handling
+    a_.1 <- hwell('a')
+    ._1A <- hpipe('a -> b')
+    expect_equal((connect('a_.1 --> ._1A')), 'a_.1 --> ._1A')
+  }
+)

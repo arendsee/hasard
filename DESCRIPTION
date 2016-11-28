@@ -11,6 +11,7 @@ Depends:
 Imports:
     magrittr,
     methods,
+    stringr,
     purrr
 License: GPL-3 | file LICENSE
 Encoding: UTF-8
