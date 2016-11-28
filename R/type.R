@@ -81,8 +81,13 @@ op <- function(f) {
 #' @rdname type
 #' @export
 `htype<-` <- function(f, value){
-  attr(f, 'htype') <- parse_type(value)
-  f <- add_class(f, 'typed')
+  if(is.null(value)){
+    attr(f, 'htype') <- NULL
+    class(f) <- setdiff(class(f), 'typed')
+  } else {
+    attr(f, 'htype') <- parse_type(value)
+    f <- add_class(f, 'typed')
+  }
   f
 }
 

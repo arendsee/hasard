@@ -116,11 +116,14 @@ set_ <- function(field, check=true) {
 check_fun_ <- function(h, value){
   success <- TRUE
   if(!is.function(value)){
-    warning(sprintf("Expected function, got '%s'", paste0(class(value), collapse="', '")))
+    message(sprintf(
+      "Expected function, got '%s'",
+      paste0(class(value), collapse="', '")
+    ))
     success <- FALSE
   }
   if(npositional(value) != nhargs(h)){
-    warning(sprintf(
+    message(sprintf(
       "found %d positional arguments in %s, but this node requires a function of type %s",
       npositional(value),
       deparse(substitute(value)),
@@ -137,15 +140,15 @@ check_inode_ <- function(h, value){
     value <- list(value)
   } else if(is.list(value)){
     if(!all(sapply(value, is.function))){
-      warning('all elements of an inode list must be functions')
+      message('all elements of an inode list must be functions')
       success <- FALSE
     }
   } else {
-    warning("inode must be a function or list of functions")
+    message("inode must be a function or list of functions")
     success <- FALSE
   }
   if(length(value) != nhargs(h)){
-    warning(sprintf(
+    message(sprintf(
       "found %d arguments in .inode, expected %d for function of type %s",
       length(value),
       nhargs(h),

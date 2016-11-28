@@ -32,6 +32,7 @@ test_that(
 
     a <- add_class(a, 'd', 'e')
     expect_true(classcheck('e', a))
+    expect_error(add_class(a, 1, 2))
 
     expect_true(classcheck('olga', add_class(a, 'olga')))
     # each class must appear only once

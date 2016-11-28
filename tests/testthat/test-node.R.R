@@ -3,6 +3,9 @@ context("node.R")
 test_that(
   "hnode creates named defaults",
   {
+    expect_true(is.function(hwell('a')))
+    expect_true(is.function(hpipe('a->b')))
+
     foo <- hpipe('a -> b')
     expect_equal(htype(foo), c('a', 'b'))
     
@@ -82,6 +85,20 @@ test_that(
 
     expect_equal(h2(), 'abc')
 
+  }
+)
+
+test_that(
+  "test default inode and fun",
+  {
+    expect_equal(deparse(formals(default_fun('a->b->c'))), 'pairlist(a = , b = )')
+    expect_equal(deparse(formals(default_fun('a->NA'))), 'pairlist(a = )')
+    expect_null(formals(default_fun('NA->a')))
+
+    expect_equal(deparse(default_inode('NA->a')), 'list()')
+    expect_true(is.list(default_inode('a->b')))
+    expect_equal(length(default_inode('a->b')), 1)
+    expect_equal(length(default_inode('a->b->c')), 2)
   }
 )
 

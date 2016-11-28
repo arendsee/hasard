@@ -1,6 +1,27 @@
 context("type.R")
 
 test_that(
+  "assignments work",
+  {
+    foo <- function(){}
+    expect_equal({htype(foo) <- 'NA->a'; htype(foo)}, c(NA,'a'))
+    expect_true({htype(foo) <- 'NA->a'; is.na(ip(foo))})
+    expect_equal({htype(foo) <- 'NA->a'; op(foo)}, 'a')
+
+    htype(foo) <- 'a->b'
+    expect_equal({ip(foo) <- 'c'; htype(foo)}, c('c', 'b'))
+    expect_equal({op(foo) <- 'd'; htype(foo)}, c('c', 'd'))
+
+    expect_null({htype(foo) <- NULL; htype(foo)})
+
+    htype(foo) <- NULL
+    expect_warning(ip(foo) <- 'c')
+    htype(foo) <- NULL
+    expect_warning(op(foo) <- 'd')
+  }
+)
+
+test_that(
   "Type parsing and stringification works",
   {
     foo <- function(){}
@@ -16,6 +37,7 @@ test_that(
     expect_equal(parse_type('a -> b'), c('a', 'b'))
     expect_equal(parse_type('NA -> b'), c(NA, 'b'))
     expect_equal(parse_type(foo), c('a', 'b', 'c'))
+    expect_error(parse_type(1))
   }
 )
 

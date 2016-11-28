@@ -48,6 +48,29 @@ test_that(
 )
 
 test_that(
+  "check checkers",
+  {
+    a <- hwell('a')
+    b <- hpipe('a->b')
+    c <- hpipe('a->b->c')
+
+    no_arg <- function(){}
+    one_arg <- function(x){}
+    two_arg <- function(x,y){}
+
+    expect_error(h_fun(a) <- one_arg)
+    expect_error(h_fun(b) <- no_arg)
+    expect_error(h_fun(b) <- two_arg)
+    expect_error(h_fun(b) <- 'hi')
+
+    expect_error(h_inode(c) <- 1)
+    expect_error(h_inode(c) <- a)
+    expect_error(h_inode(c) <- list(a, 1))
+    expect_error(h_inode(c) <- list(a,a,a))
+  }
+)
+
+test_that(
   "issue #1 - check all defaults",
   {
     foo <- hpipe('a->b')
