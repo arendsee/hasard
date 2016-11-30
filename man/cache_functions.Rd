@@ -3,22 +3,20 @@
 \name{cache_functions}
 \alias{cache_functions}
 \alias{make_datcache}
-\alias{make_memcache}
+\alias{memcache}
 \alias{nocache}
 \title{Cache functions}
 \usage{
-nocache(op, ...)
+nocache(id = NA)
 
-make_memcache()
+memcache(id = NA)
 
-make_datcache(filename)
+make_datcache(directory)
 }
 \arguments{
-\item{op}{command for cache function}
+\item{id}{unique id for the cache, if it will be the filename}
 
-\item{...}{arguments sent to del, chk, put, and get within the cacher}
-
-\item{filename}{filename for cachers that store data in files}
+\item{directory}{directory where caches files are kept}
 }
 \description{
 Cache functions

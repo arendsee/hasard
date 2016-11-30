@@ -74,3 +74,19 @@ add_class <- function(x, ...){
   }
   Reduce(add_class_, unlist(list(...)), init=x)
 }
+
+#' Create a counter
+#'
+#' @export
+make_get_uid <- function(initial=1) {
+  i = initial
+  function(){
+    i <<- i + 1
+    i
+  }
+}
+
+#' Unique id generator (1,2, ..., n)
+#'
+#' @export
+get_uid <- make_get_uid(1)
