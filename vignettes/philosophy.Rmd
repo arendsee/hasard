@@ -1,0 +1,20 @@
+---
+title: "Pied Philosophy"
+author: "Zebulun Arendsee"
+date: "`r Sys.Date()`"
+output:
+    rmarkdown::html_vignette:
+        fig_caption: yes
+vignette: >
+  %\VignetteIndexEntry{Pied Philosophy}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+When designing a pipeline some problems are intrinsically interesting, some are
+not. Data caching, data transfer, parallelism, execution environment and such
+things are boring. The researcher should write pure data transforms, they
+should specify invariants and data assumptions, they should determine how
+results are presented. These three elements are orthogonal. Data validators and
+loggers should not alter the data. Pure functions should not be cluttered with
+validator and logging code.
