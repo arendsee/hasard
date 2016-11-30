@@ -22,4 +22,8 @@ a caching function
 \description{
 Create a caching function
 }
+\seealso{
+Other makers: \code{\link{make_effector}},
+  \code{\link{make_validator}}
+}
 

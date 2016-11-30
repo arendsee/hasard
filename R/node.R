@@ -19,44 +19,6 @@ NULL
 
 #' @rdname node
 #' @export
-default_fun <- function(type){
-  type <- parse_type(type)
-  N <- nhargs(type)
-  fun <- nothing
-  if(N == 0){
-    formals(fun) <- c()
-  } else {
-    formals(fun) <-
-      c(letters[1:N]) %>%
-      {parse(text=sprintf('alist(%s =)', paste(., collapse="= ,")))} %>%
-      eval
-  }
-  fun
-}
-
-#' @rdname node
-#' @export
-default_inode <- function(type){
-  type <- parse_type(type)
-  N <- nhargs(type)
-  if(N == 0){
-    inode <- list()
-  } else if(N == 1) {
-    inode <- list(nothing)
-    formals(inode[[1]]) <- alist(x=)
-  } else {
-    inode <- list()
-    for(i in 1:N){
-      fun <- nothing
-      formals(fun) <- eval(parse(text=sprintf('alist(%s =)', letters[i])))
-      inode[[i]] <- fun
-    }
-  }
-  inode
-}
-
-#' @rdname node
-#' @export
 hwell <- function(type){
   type <- parse_type(type, role='well')
 
@@ -90,7 +52,6 @@ hpipe <- function(type){
   type <- parse_type(type)
 
   h <- function(
-    type,
     .fun    = default_fun(type),
     .inode  = default_inode(type),
     .val    = true,
@@ -130,3 +91,43 @@ hsink <- function(type){
   parent.env(environment(h)) <- parent.frame()
   h
 }
+
+
+# TODO: I need a formal method for handling loops, I've started implementing
+# some junk below, but I don't like it. My basic approach is to define a well
+# and sink, then for each well variant, recall the sink. Finally merge the list
+# of sink outputs. The overall approach seems fine (it is a little tricky
+# running loops across subgraphs), but there are recalcitrant details. How
+# should I handle the cache? The effectors? Also, what about nodes that branch
+# off nodes within the loop? Anyway, below are the bones of my first attack:
+#
+# make_split_fun <- function(variant, field, values, sink){
+#   fun <- function(){}
+#   body(fun) <- substitute(
+#     {
+#       i <- 1
+#       run_one <- function(v) {
+#         h_args(variant)[[field]] <- v
+#         h_cachid(variant) <- i
+#         i <- i + 1
+#         sink()
+#       }
+#       lapply(values, run_one)
+#     }
+#   )
+#   parent.env(environment(fun)) <- parent.frame()
+#   fun
+# }
+#
+# hloop <- function(flow, split_fun, ..., merge_fun=id){
+#
+#   flow <- parse_flow(flow)
+#
+#   # assert variant is a well in flow
+#   # assert there is only one sink
+#
+#   h <- function(){
+#
+#   }
+#
+# }

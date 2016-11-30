@@ -17,4 +17,8 @@ an effector function
 \description{
 Create a new effector function
 }
+\seealso{
+Other makers: \code{\link{make_cacher}},
+  \code{\link{make_validator}}
+}
 
