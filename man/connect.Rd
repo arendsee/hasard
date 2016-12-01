@@ -45,7 +45,5 @@ h_fun(C) <- function(x) paste0(x, 'c')
 h_fun(D) <- function(x,y) sprintf('(\%s)(\%s)d', x, y)
 
 connect('(A --> B) (A --> B --> C) --> D')
-
-D()
 }
 

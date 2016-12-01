@@ -75,6 +75,31 @@ add_class <- function(x, ...){
   Reduce(add_class_, unlist(list(...)), init=x)
 }
 
+# #' Insert elements between every member of a list
+# #'
+# #' @param x any list or vector
+# #' @return s list or vector to be intercalated
+# #' @export
+# #' @examples
+# #' intercalate(letters, ',')
+# intercalate <- function(x, s){
+#   lapply(x, c, s) %>% unlist
+# }
+
+#' Like splits on a pattern but keeps the pattern
+#' 
+#' @param x a character vector
+#' @return p a pattern (can be a regular expression)
+#' @export
+#' @examples
+#' keep_split(c('a,b', ',acat,,eh'), ',')
+#' keep_split('(a){strangely(punctuated..*sentence', '[^\\w]')
+keep_split <- function(x, p, dummy='@@'){
+  pattern <- paste0('(', p, ')')
+  replacement <- paste0(dummy, '\\1', dummy)
+  strsplit(gsub(pattern, replacement, x, perl=TRUE), dummy)
+}
+
 #' Create a counter
 #'
 #' @export

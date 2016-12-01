@@ -125,11 +125,39 @@ compose <- function(...){
 #' h_fun(D) <- function(x,y) sprintf('(%s)(%s)d', x, y)
 #'
 #' connect('(A --> B) (A --> B --> C) --> D')
-#'
-#' D()
 #' @export
+
 connect <- function(x){
-  operations <- NULL
+
+  parent <- parent.frame()
+  child <- new.env()
+  parent.env(e) <- parent
+
+  NAME <- '[\\w.]+'
+
+  terms <- keep_split(x, NAME)[[1]]
+  name_ids <- stringr::str_detect(terms, NAME)
+
+  with( child,
+    {
+      nodes <- lapply(terms[name_ids], function(x) get(x, envir=parent)())
+    }
+  )
+
+  node_names <- paste0(terms[name_ids], '__', sapply(child$nodes, attr, 'id'))
+  terms[name_ids] <- node_names
+
+  with( child,
+    {
+      names(nodes) <- node_names
+      for(i in 1:length(nodes)){
+        assign(names(nodes)[i], nodes[[i]])
+      }
+      rm(nodes, i)
+    }
+  )
+
+  x <- paste(terms, collapse='')
   while(!stringr::str_detect(x, '^[\\w.]+$')){
     original <- x
     link <- stringr::str_extract(x, '[\\w. ]+\\s*-->\\s*[\\w.]+')[1]
@@ -143,15 +171,14 @@ connect <- function(x){
     N <- length(p)
     o <- p[N]
     i <- p[-N]
-    if(N == 2){
-      set_inode <- sprintf('h_inode(%s) <- %s', o, i)
-    } else if(N > 2) {
-      set_inode <- sprintf('h_inode(%s) <- list(%s)', o, stringr::str_c(i, collapse=', '))
+    if(N >= 2){
+      cmd_str <- 'h_inode(%s) <- list(%s)'
+      cmd_str <- sprintf(cmd_str, o, paste(i, collapse=', '))
+      with(child, eval(parse(text=cmd_str)))
     } else {
       stop(sprintf("Expected N >= 2, but found N=%s for p='%s'", N, p))
     }
-    eval(parse(text=set_inode), envir=parent.frame())
-    operations <- c(operations, link)
   }
-  invisible(operations)
+
+  child
 }
