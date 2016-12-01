@@ -31,8 +31,6 @@
 \usage{
 h_fun(h)
 
-h_inode(h)
-
 h_val(h)
 
 h_pass(h)
@@ -43,9 +41,9 @@ h_effect(h)
 
 h_cacher(h)
 
-h_fun_ne(h)
+h_inode(h)
 
-h_inode_ne(h)
+h_fun_ne(h)
 
 h_val_ne(h)
 
@@ -61,7 +59,7 @@ h_args(h)
 
 h_delete(h)
 
-h_inode(h) <- value
+h_inode_ne(h)
 
 h_fun(h) <- value
 
@@ -80,6 +78,8 @@ h_fail(h) <- value
 h_args(h) <- value
 
 h_delete(h) <- value
+
+h_inode(h) <- value
 }
 \arguments{
 \item{h}{a function of the 'hnode' class}

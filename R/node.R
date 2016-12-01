@@ -27,7 +27,7 @@ NULL
 
 #' @rdname node
 #' @export
-hwell <- function(type, envir=parent.frame()){
+hwell <- function(type){
   type <- parse_type(type, role='well')
 
   h <- function(
@@ -36,16 +36,15 @@ hwell <- function(type, envir=parent.frame()){
     .cacher = nocache,
     .args   = list(),
     .id     = get_uid(),
-    .clear  = TRUE,
-    .envir  = envir
+    .clear  = TRUE
   ){
 
     # Get the concrete entities
-    fun    <- eval(.fun,    .envir)
-    effect <- eval(.effect, .envir)
-    args   <- eval(.args,   .envir)
-    cacher <- eval(.cacher, .envir)
-    id     <- eval(.id,     .envir)
+    fun    <- eval(.fun,    parent.frame())
+    effect <- eval(.effect, parent.frame())
+    args   <- eval(.args,   parent.frame())
+    cacher <- eval(.cacher, parent.frame())
+    id     <- eval(.id,     parent.frame())
     cacher <- cacher(id)
 
     # Clear cache if needed
@@ -53,7 +52,7 @@ hwell <- function(type, envir=parent.frame()){
       cacher('del')
     }
 
-    function(){
+    n <- function(){
       if(!cacher('chk')){
         b <- do.call(fun, args)
         runall(effect, b)
@@ -63,16 +62,21 @@ hwell <- function(type, envir=parent.frame()){
       }
       b
     }
+    attributes(n)$id <- id
+    htype(n) <- type
+    n <- add_class(n, 'hnode')
+    n
   }
 
   h <- add_class(h, 'hnode', 'well')
   htype(h) <- type
+  parent.env(environment(h)) <- parent.frame()
   h
 }
 
 #' @rdname node
 #' @export
-hpipe <- function(type, envir=parent.frame()){
+hpipe <- function(type){
   type <- parse_type(type)
 
   h <- function(
@@ -84,19 +88,18 @@ hpipe <- function(type, envir=parent.frame()){
     .cacher = nocache,
     .clear  = FALSE,
     .args   = list(),
-    .id     = get_uid(),
-    .envir  = envir
+    .id     = get_uid()
   ){
 
     # Get the concrete entities
-    fun    <- eval(.fun,    .envir)
-    val    <- eval(.val,    .envir)
-    pass   <- eval(.pass,   .envir)
-    fail   <- eval(.fail,   .envir)
-    effect <- eval(.effect, .envir)
-    cacher <- eval(.cacher, .envir)
-    args   <- eval(.args,   .envir)
-    id     <- eval(.id,     .envir)
+    fun    <- eval(.fun)
+    val    <- eval(.val)
+    pass   <- eval(.pass)
+    fail   <- eval(.fail)
+    effect <- eval(.effect)
+    cacher <- eval(.cacher)
+    args   <- eval(.args)
+    id     <- eval(.id)
     cacher <- cacher(id)
 
     # Clear cache if needed
@@ -104,7 +107,7 @@ hpipe <- function(type, envir=parent.frame()){
       cacher('del')
     }
 
-    function(.inode){
+    n <- function(.inode){
       if(cacher('chk')) return(cacher('get'))
       a <- runall(.inode)
       funlist <- append(fun, append(a, args))
@@ -117,18 +120,24 @@ hpipe <- function(type, envir=parent.frame()){
       cacher('put', b)
       b
     }
+    attributes(n)$id <- id
+    htype(n) <- type
+    n <- add_class(n, 'hnode')
+    n
   }
 
   h <- add_class(h, 'hnode', 'pipe')
   htype(h) <- type
+  parent.env(environment(h)) <- parent.frame()
   h
 }
 
 #' @rdname node
 #' @export
-hsink <- function(type, envir=parent.frame()){
+hsink <- function(type){
   type <- parse_type(type, 'sink')
-  h <- hpipe(type, envir)
+  h <- hpipe(type)
   h <- add_class(h, 'hnode', 'sink')
+  parent.env(environment(h)) <- parent.frame()
   h
 }

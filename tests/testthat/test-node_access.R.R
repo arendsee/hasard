@@ -5,7 +5,6 @@ test_that(
   {
     foo <- function(
       .fun    = nothing,
-      .inode  = nothing,
       .val    = true,
       .pass   = execute,
       .fail   = nothing,
@@ -16,7 +15,6 @@ test_that(
     ){}
 
     expect_equal(deparse(h_fun_ne(foo)),    "nothing")
-    expect_equal(deparse(h_inode_ne(foo)),  "nothing")
     expect_equal(deparse(h_val_ne(foo)),    "true")
     expect_equal(deparse(h_pass_ne(foo)),   "execute")
     expect_equal(deparse(h_fail_ne(foo)),   "nothing")
@@ -39,7 +37,6 @@ test_that(
     h_fun(baz) <- one
 
     expect_equal({h_fun(foo)    <- bar;   deparse(h_fun_ne(foo))},    "bar")
-    expect_equal({h_inode(foo)  <- baz;   deparse(h_inode_ne(foo))},  "baz")
     expect_equal({h_val(foo)    <- false; deparse(h_val_ne(foo))},    "false")
     expect_equal({h_pass(foo)   <- baz;   deparse(h_pass_ne(foo))},   "baz")
     expect_equal({h_fail(foo)   <- baz;   deparse(h_fail_ne(foo))},   "baz")
@@ -63,10 +60,11 @@ test_that(
     expect_error(h_fun(b) <- two_arg)
     expect_error(h_fun(b) <- 'hi')
 
-    expect_error(h_inode(c) <- 1)
-    expect_error(h_inode(c) <- a)
-    expect_error(h_inode(c) <- list(a, 1))
-    expect_error(h_inode(c) <- list(a,a,a))
+    c1 <- c()
+    expect_error(h_inode(c1) <- 1)
+    expect_error(h_inode(c1) <- a)
+    expect_error(h_inode(c1) <- list(a, 1))
+    expect_error(h_inode(c1) <- list(a,a,a))
   }
 )
 
@@ -75,7 +73,6 @@ test_that(
   {
     foo <- hpipe('a->b')
     expect_null(h_fun(foo)())
-    expect_null(h_inode(foo)[[1]]())
     expect_true(h_val(foo)())
     expect_null(h_pass(foo)(h_fun(foo), 1))
     expect_null(h_fail(foo)())

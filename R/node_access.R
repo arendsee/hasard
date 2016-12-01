@@ -29,10 +29,6 @@ h_fun <- function(h) { eval(formals(h)$.fun, environment(h)) }
 
 #' @rdname hnode_setters
 #' @export
-h_inode <- function(h) { eval(formals(h)$.inode, environment(h)) }
-
-#' @rdname hnode_setters
-#' @export
 h_val <- function(h) { eval(formals(h)$.val, environment(h)) }
 
 #' @rdname hnode_setters
@@ -53,11 +49,11 @@ h_cacher <- function(h) { eval(formals(h)$.cacher, environment(h)) }
 
 #' @rdname hnode_setters
 #' @export
-h_fun_ne <- function(h) { formals(h)$.fun }
+h_inode <- function(h) { eval(formals(h)$.inode, environment(h)) }
 
 #' @rdname hnode_setters
 #' @export
-h_inode_ne <- function(h) { formals(h)$.inode }
+h_fun_ne <- function(h) { formals(h)$.fun }
 
 #' @rdname hnode_setters
 #' @export
@@ -87,6 +83,10 @@ h_args <- function(h) { formals(h)$.args }
 #' @export
 h_delete <- function(h) { formals(h)$.delete }
 
+#' @rdname hnode_setters
+#' @export
+h_inode_ne <- function(h) { formals(h)$.inode }
+
 
 set_ <- function(field, check=true) {
   fun <- function(h, value){}
@@ -108,7 +108,7 @@ set_ <- function(field, check=true) {
         stop(sprintf("Assignment to '%s' failed", field))
       }
       h
-    }
+    },
   )
   fun
 }
@@ -161,10 +161,6 @@ check_inode_ <- function(h, value){
 
 #' @export
 #' @rdname hnode_setters
-`h_inode<-` <- set_(".inode", check=check_inode_)
-
-#' @export
-#' @rdname hnode_setters
 `h_fun<-` <- set_(".fun", check=check_fun_)
 
 #' @export
@@ -198,3 +194,8 @@ check_inode_ <- function(h, value){
 #' @export
 #' @rdname hnode_setters
 `h_delete<-` <- set_(".delete")
+
+#' @export
+#' @rdname hnode_setters
+`h_inode<-` <- set_(".inode", check=check_inode_)
+

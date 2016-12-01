@@ -33,10 +33,5 @@ test_that(
 
     expect_equal(execute(paste, "a", "b"), "a b") 
     expect_error(execute('a')) 
-
-    expect_null(nocache('del'))
-    expect_null(nocache('put'))
-    expect_null(nocache('get'))
-    expect_false(nocache('chk'))
   }
 )

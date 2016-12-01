@@ -7,11 +7,11 @@
 \alias{node}
 \title{Build function}
 \usage{
-hwell(type, envir = parent.frame())
+hwell(type)
 
-hpipe(type, envir = parent.frame())
+hpipe(type)
 
-hsink(type, envir = parent.frame())
+hsink(type)
 }
 \arguments{
 \item{type}{a functional type ala Haskell}

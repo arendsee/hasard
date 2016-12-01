@@ -44,8 +44,8 @@ memcache <- function(id=NA){
 #' @rdname cache_functions
 #' @export
 make_datcache <- function(directory){
-  function(id=NA){
-    f <- path(directory, paste0(id, '.rdat'))
+  cacher <- function(id=NA){
+    f <- file.path(directory, paste0(id, '.rdat'))
     del_ <- function(){
       if(file.exists(f)) file.remove(f)
     }
