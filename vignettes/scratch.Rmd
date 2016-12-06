@@ -106,7 +106,7 @@ a<x=xs> b<y=ys> --> c
 ## Combinatoric Parallelization
 
 ```
-a<1:x=xs> b<2:y=ys> --> c
+a<1:x=xs,a=as> b<2:y=ys> --> c
 ```
 
 ## Branching
