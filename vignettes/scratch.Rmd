@@ -39,91 +39,31 @@ The nodes can't see the global environment. All elements of function live in
 `node_cls`. They exist as parametric function classes. The `connect` function
 uses a simple node language to build a instances of the workflow.
 
+# Example
 
-# Workflow specification
+```{r}
 
-## Hello world
+raise <- function(space, x){
+    xname <- deparse(substitute(x))
+    space[[xname]] <- x 
+    environment(space[[xname]]) <- space
+}
 
-```
-hw <- connect('hello_world')
-hw$run()
-```
-
-This creates an instance of the `hello_world` node and then executes it
-
-## Two element pipe
-
-```
-connect('a --> b')
-```
-
-Creates instances of `a` and `b` and links output of `a` to input of `b`.
-
-## Multiple inputs
-
-I will dispense with writing `connect` repeatedly
-
-```
-a b --> c
-```
-
-```
-a (x -> y -> b) --> c
-```
+space <- function(parent=baseenv()){
+  space <- new.env()
+  parent.env(space) <- parent 
+  with(
+    space,
+    {
+      map    <- new.env()
+      chk    <- new.env()
+      pass   <- new.env()
+      fail   <- new.env()
+      effect <- new.env()
+      cache  <- new.env()
+    }
+  )
+  space
+}
 
 ```
-(z --> a) (x --> y --> b) --> c
-```
-
-The pipeline can have an arbitrary number of internal branches
-
-## Multiple outputs
-
-```
-(a --> 1:b --> c) (d --> 2:b --> e) --> f ; 1:b --> g
-```
-
-Here `b` is labeled to indicate the same node is being used twice. A given
-symbol can appear multiple times in a workflow. These may be generic functions
-like `sort`.
-
-## Parameterization
-
-```
-a<<x=1>> b --> c
-```
-
-## Parallelization
-
-```
-a<x=xs> b --> c
-```
-
-```
-a<x=xs> b<y=ys> --> c
-```
-
-## Combinatoric Parallelization
-
-```
-a<1:x=xs,a=as> b<2:y=ys> --> c
-```
-
-## Branching
-
-```
-a --> b --> c
-```
-
-```
-a --> V? {foo: b<<x=1>>} {bar: b<<x=5>>} {baz: b<<x=7>>} --> c
-```
-
-Which is reduced by the preprocessor to
-
-```
-a --> ( b<<x=1>> b<<x=5>> b<<x=7>> e ) --> c
-```
-
-Where `e` is an automatically generated function that selects which input to
-use depending on the output of `V`
